@@ -1,4 +1,4 @@
-import { applySeoResponse, handleApi } from '../worker/index.js';
+import { applySeoResponse, handleApi, staticUtilityResponse } from '../worker/index.js';
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
@@ -7,6 +7,9 @@ export async function onRequest(context) {
     url.hostname = url.hostname.replace(/^www\./, '');
     return Response.redirect(url.toString(), 301);
   }
+
+  const staticResponse = staticUtilityResponse(url);
+  if (staticResponse) return staticResponse;
 
   if (url.pathname.startsWith('/api/')) {
     return handleApi(context.request, context.env, url);

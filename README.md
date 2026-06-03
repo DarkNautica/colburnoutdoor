@@ -15,6 +15,11 @@ React + Tailwind website with a local-service lead system for Colburn Outdoor Ma
 - Optional Twilio webhook scaffolding disabled by default
 - Privacy Policy and Terms pages
 - Lead analytics and source tracking
+- Google Search Console verification file at `/googlee11bb7f9d7b29aad.html`
+
+## Service Area
+
+The public site and structured data describe the service area as the Charlotte area and northwest North Carolina. Keep this wording accurate and update it if the business narrows or expands where it works.
 
 ## Run Locally
 
@@ -106,6 +111,22 @@ The dashboard supports Phase 1 manual lead handling:
 ## Google Business Profile
 
 The site links to the live Google review destination at `https://g.page/r/CVwXiW6gh7xaEAI/review`. The public schema includes the Google profile identity URL through `sameAs`, but it intentionally does not include `aggregateRating` or fake review markup. Keep reviews handled through the real Google Business Profile.
+
+## Search Console
+
+Use the URL-prefix property `https://colburnoutdoor.com/` in Google Search Console. The HTML verification file is served at:
+
+```text
+https://colburnoutdoor.com/googlee11bb7f9d7b29aad.html
+```
+
+After verification, submit this sitemap:
+
+```text
+https://colburnoutdoor.com/sitemap.xml
+```
+
+Do not use the sitemap URL as the Search Console property itself.
 
 ## SMS Automation Notes
 

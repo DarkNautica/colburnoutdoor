@@ -28,6 +28,7 @@ import { calculateEstimate, pricingConfig } from './data/pricing.js';
 const phoneDisplay = '(704) 430-5221';
 const phoneHref = 'tel:+17044305221';
 const siteUrl = 'https://colburnoutdoor.com';
+const serviceArea = 'Charlotte area and northwest North Carolina';
 const googleProfileUrl = 'https://g.page/r/CVwXiW6gh7xaEAI';
 const googleReviewUrl = `${googleProfileUrl}/review`;
 const dashboardPasswordKey = 'colburn-dashboard-password';
@@ -52,9 +53,9 @@ const publicSectionIds = ['top', 'services', 'estimate', 'work-types', 'faq', 'c
 
 const seoPages = {
   home: {
-    title: 'Colburn Outdoor Maintenance | Lawn Care, Cleanup & Property Upkeep',
+    title: 'Colburn Outdoor Maintenance | Charlotte Area Lawn Care & Cleanup',
     description:
-      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep for homes, rentals, and small business grounds.',
+      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep across the Charlotte area and northwest North Carolina.',
     canonical: `${siteUrl}/`,
   },
   privacy: {
@@ -143,6 +144,10 @@ const faqs = [
   {
     question: 'Do you handle one-time yard cleanup?',
     answer: 'Yes. One-time cleanup can help with leaves, branches, debris, overgrowth, and outdoor areas that need a reset.',
+  },
+  {
+    question: 'What areas do you serve?',
+    answer: 'Service is focused on the Charlotte area and northwest North Carolina. Call to confirm availability for your property.',
   },
   {
     question: 'Can you help with rentals and small business grounds?',
@@ -538,7 +543,7 @@ function Hero() {
             Reliable outdoor maintenance for homes and small businesses.
           </h1>
           <p className="mt-7 max-w-2xl text-lg leading-8 text-[#fff2df]/92 sm:text-xl sm:leading-9">
-            Lawn care, trimming, cleanup, and basic outdoor property upkeep. Call to talk through the job and get on the schedule.
+            Lawn care, trimming, cleanup, and basic outdoor property upkeep across the {serviceArea}. Call to talk through the job and get on the schedule.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <div className="hidden sm:block">
@@ -1011,6 +1016,7 @@ function CallFirst() {
           <Phone className="h-8 w-8 text-[#d2a75f]" strokeWidth={1.8} />
           <h3 className="mt-5 text-xl font-bold text-white">No online booking.</h3>
           <p className="mt-3 text-base leading-7 text-[#efe1c9]">Every property is different. A quick call helps understand the job and get it scheduled.</p>
+          <p className="mt-3 text-sm font-bold uppercase tracking-normal text-[#d2a75f]">Serving the {serviceArea}</p>
           <a className="mt-5 inline-flex font-bold text-[#d2a75f] transition hover:text-[#fff7ea]" href={googleReviewUrl} target="_blank" rel="noreferrer">
             Leave a Google review
           </a>
@@ -1027,7 +1033,7 @@ function Footer() {
         <div>
           <BrandLockup footer />
           <h2 className="mt-5 font-serif text-3xl font-bold text-white">Colburn Outdoor Maintenance</h2>
-          <p className="mt-5 max-w-md text-base leading-7 text-[#d9c7aa]">Local outdoor maintenance for homes, rental properties, and small business grounds.</p>
+          <p className="mt-5 max-w-md text-base leading-7 text-[#d9c7aa]">Local outdoor maintenance for homes, rental properties, and small business grounds across the {serviceArea}.</p>
           <a className="mt-4 inline-block text-sm font-bold text-[#d2a75f]" href="/dashboard">Owner dashboard</a>
           <div className="mt-4 flex flex-wrap gap-4 text-sm font-bold text-[#d9c7aa]">
             <a className="transition hover:text-[#d2a75f]" href="/privacy">Privacy Policy</a>
@@ -1038,6 +1044,7 @@ function Footer() {
           <h2 className="text-sm font-black uppercase tracking-normal text-[#d2a75f]">Contact</h2>
           <ul className="mt-5 space-y-3 text-base">
             <li>colburnoutdoor.com</li>
+            <li>Service area: {serviceArea}</li>
             <li><a className="font-bold text-white transition hover:text-[#d2a75f]" href={phoneHref}>{phoneDisplay}</a></li>
             <li><a className="font-bold text-white transition hover:text-[#d2a75f]" href={googleReviewUrl} target="_blank" rel="noreferrer">Leave a Google review</a></li>
           </ul>

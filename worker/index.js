@@ -2,6 +2,8 @@ import { calculateEstimate, pricingConfig } from '../src/data/pricing.js';
 
 const leadStatuses = ['new', 'contacted', 'quoted', 'booked', 'completed', 'lost'];
 const submissionRateLimit = new Map();
+const googleVerificationFile = 'googlee11bb7f9d7b29aad.html';
+const googleVerificationBody = `google-site-verification: ${googleVerificationFile}\n`;
 
 function cleanString(value = '') {
   return String(value ?? '').trim();
@@ -28,9 +30,9 @@ function jsonResponse(payload, status = 200) {
 
 const seoRoutes = {
   '/': {
-    title: 'Colburn Outdoor Maintenance | Lawn Care, Cleanup & Property Upkeep',
+    title: 'Colburn Outdoor Maintenance | Charlotte Area Lawn Care & Cleanup',
     description:
-      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep for homes, rentals, and small business grounds.',
+      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep across the Charlotte area and northwest North Carolina.',
     canonical: 'https://colburnoutdoor.com/',
   },
   '/privacy': {
@@ -58,6 +60,25 @@ function escapeHtml(value) {
 function routeSeo(pathname) {
   const normalized = pathname.replace(/\/$/, '') || '/';
   return seoRoutes[normalized] || seoRoutes['/'];
+}
+
+export function staticUtilityResponse(url) {
+  if (url.pathname === `/${googleVerificationFile}` || url.pathname === `/sitemap.xml/${googleVerificationFile}`) {
+    return new Response(googleVerificationBody, {
+      headers: {
+        'Cache-Control': 'public, max-age=3600',
+        'Content-Type': 'text/plain; charset=UTF-8',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    });
+  }
+
+  if (url.pathname === '/sitemap.xml/') {
+    url.pathname = '/sitemap.xml';
+    return Response.redirect(url.toString(), 301);
+  }
+
+  return null;
 }
 
 function replaceMetaTag(html, selector, replacement) {
@@ -859,6 +880,9 @@ export default {
         url.hostname = url.hostname.replace(/^www\./, '');
         return Response.redirect(url.toString(), 301);
       }
+
+      const staticResponse = staticUtilityResponse(url);
+      if (staticResponse) return staticResponse;
 
       if (url.pathname.startsWith('/api/')) {
         return handleApi(request, env, url);
