@@ -200,6 +200,53 @@ function resetHeroPointer(event) {
   event.currentTarget.style.setProperty('--hero-pan-y', '0px');
 }
 
+function FadeImage({ className = '', src, alt, loading = 'lazy', fetchPriority, ...props }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <img
+      className={`image-fade ${loaded ? 'is-loaded' : ''} ${className}`}
+      src={src}
+      alt={alt}
+      loading={loading}
+      fetchPriority={fetchPriority}
+      decoding="async"
+      onLoad={() => setLoaded(true)}
+      {...props}
+    />
+  );
+}
+
+function SectionArtwork({ tone = 'light', layout = 'leaf' }) {
+  return (
+    <div className={`section-artwork section-artwork-${tone} section-artwork-${layout}`} aria-hidden="true">
+      <svg className="art-leaf parallax-far" viewBox="0 0 360 260" fill="none">
+        <path d="M55 206C102 108 205 42 315 31C293 142 218 215 106 225C88 226 70 220 55 206Z" />
+        <path d="M67 205C136 161 209 110 296 44" />
+        <path d="M138 157C134 129 139 105 153 85" />
+        <path d="M193 119C196 95 209 75 231 61" />
+        <path d="M101 183C84 158 65 142 43 135" />
+      </svg>
+      <svg className="art-tool parallax-near" viewBox="0 0 260 300" fill="none">
+        <path d="M164 31L74 242" />
+        <path d="M54 238L94 254" />
+        <path d="M144 28L184 45" />
+        <path d="M178 42L203 58" />
+        <path d="M186 56L207 68" />
+        <path d="M194 71L215 83" />
+        <path d="M202 86L221 97" />
+      </svg>
+      <svg className="art-grass parallax-mid" viewBox="0 0 420 160" fill="none">
+        <path d="M18 133C73 95 121 93 168 119C213 143 275 148 397 87" />
+        <path d="M97 114C91 78 80 48 61 22" />
+        <path d="M130 112C134 73 148 42 171 18" />
+        <path d="M164 121C177 86 198 61 226 45" />
+        <path d="M67 126C51 101 32 84 11 75" />
+      </svg>
+    </div>
+  );
+}
+
 function useRevealMotion(enabled = true) {
   useEffect(() => {
     if (!enabled) return undefined;
@@ -255,6 +302,9 @@ function usePageMotion(enabled = true) {
 
       document.documentElement.style.setProperty('--scroll-progress', progress.toFixed(4));
       document.documentElement.style.setProperty('--hero-scroll', `${Math.round(scrollTop * 0.035)}px`);
+      document.documentElement.style.setProperty('--ambient-shift-far', `${Math.round(scrollTop * -0.035)}px`);
+      document.documentElement.style.setProperty('--ambient-shift-mid', `${Math.round(scrollTop * -0.055)}px`);
+      document.documentElement.style.setProperty('--ambient-shift-near', `${Math.round(scrollTop * -0.085)}px`);
 
       setState((current) => {
         const isScrolled = scrollTop > 24;
@@ -314,8 +364,8 @@ function CallLink({ className = '', children = `Call ${phoneDisplay}`, variant =
 function BrandLockup({ compact = false, footer = false }) {
   if (footer) {
     return (
-      <div className="grid h-24 w-24 place-items-center rounded-full border border-[#d2a75f]/45 bg-[#fbf5e9] p-3">
-        <img className="h-full w-full object-contain" src="/images/colburn-outdoor-logo-light.png" alt="" loading="lazy" decoding="async" />
+      <div className="logo-tile h-36 w-64 overflow-hidden rounded-md border border-[#d2a75f]/45 bg-[#fbf5e9] shadow-[0_18px_40px_rgba(0,0,0,0.18)] sm:h-40 sm:w-72">
+        <FadeImage className="logo-tile-image" src="/images/colburn-outdoor-logo.png" alt="" />
       </div>
     );
   }
@@ -323,7 +373,7 @@ function BrandLockup({ compact = false, footer = false }) {
   return (
     <span className="flex min-w-0 items-center gap-3">
       <span className={`grid shrink-0 place-items-center transition-all duration-300 ${compact ? 'h-11 w-[58px]' : 'h-14 w-[72px]'}`}>
-        <img className="h-full w-full object-contain" src="/images/colburn-outdoor-mark.png" alt="" decoding="async" />
+        <FadeImage className="h-full w-full object-contain" src="/images/colburn-outdoor-mark.png" alt="" loading="eager" />
       </span>
       <span className={`font-serif font-bold leading-[0.96] text-[#143420] transition-all duration-300 ${compact ? 'max-w-[185px] text-lg sm:max-w-none sm:text-xl' : 'max-w-[210px] text-xl sm:max-w-none sm:text-2xl'}`}>
         Colburn Outdoor Maintenance
@@ -343,11 +393,12 @@ function Header({ activeSection, isScrolled }) {
       <div className="absolute inset-x-0 top-0 h-1 bg-[#eadcc4]">
         <div className="scroll-progress h-full bg-[#245b2f]" />
       </div>
-      <div className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 transition-[height] duration-300 sm:px-6 lg:px-8 ${isScrolled ? 'h-16 lg:h-20' : 'h-20 lg:h-24'}`}>
-        <a className="min-w-0" href="#top" aria-label="Colburn Outdoor Maintenance home">
+      <div className={`mx-auto flex max-w-7xl items-center gap-4 px-4 transition-[height] duration-300 sm:px-6 lg:gap-7 lg:px-8 ${isScrolled ? 'h-16 lg:h-20' : 'h-20 lg:h-24'}`}>
+        <a className="min-w-0 shrink-0" href="#top" aria-label="Colburn Outdoor Maintenance home">
           <BrandLockup compact={isScrolled} />
         </a>
-        <nav className="hidden items-center gap-9 lg:flex" aria-label="Primary navigation">
+        <div className="header-separator hidden lg:block" aria-hidden="true" />
+        <nav className="ml-auto hidden items-center gap-8 lg:flex" aria-label="Primary navigation">
           {navItems.map((item) => (
             <button
               className={`relative text-[15px] font-bold transition duration-200 after:absolute after:-bottom-3 after:left-0 after:h-0.5 after:w-full after:origin-right after:bg-[#245b2f] after:transition hover:text-[#245b2f] hover:after:origin-left hover:after:scale-x-100 ${activeSection === item.href.slice(1) ? 'text-[#245b2f] after:scale-x-100' : 'text-[#1e241f] after:scale-x-0'}`}
@@ -391,10 +442,10 @@ function Header({ activeSection, isScrolled }) {
 function Hero() {
   return (
     <section id="top" className="relative isolate min-h-[700px] overflow-hidden bg-[#143420] text-white sm:min-h-[760px] lg:min-h-[calc(100vh-160px)]" onPointerMove={handleHeroPointer} onPointerLeave={resetHeroPointer}>
-      <img className="hero-media absolute inset-0 h-full w-full object-cover" src="/images/hero-yard.png" alt="Clean lawn and maintained outdoor property" />
+      <FadeImage className="hero-media absolute inset-0 h-full w-full object-cover" src="/images/hero-yard.png" alt="Clean lawn and maintained outdoor property" loading="eager" fetchPriority="high" />
       <div className="absolute inset-0 bg-[linear-gradient(102deg,rgba(13,45,25,0.96)_0%,rgba(13,45,25,0.9)_38%,rgba(13,45,25,0.4)_54%,rgba(13,45,25,0.08)_100%)]" />
       <div className="hero-logo-watermark pointer-events-none absolute left-[7%] top-[21%] hidden h-48 w-48 place-items-center rounded-full border border-[#d2a75f]/45 bg-[#0d2115]/32 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.24)] 2xl:grid">
-        <img className="h-full w-full object-contain opacity-95 drop-shadow-[0_10px_20px_rgba(0,0,0,0.35)]" src="/images/colburn-outdoor-logo-light.png" alt="" decoding="async" />
+        <FadeImage className="h-full w-full object-contain opacity-100 drop-shadow-[0_10px_20px_rgba(0,0,0,0.35)]" src="/images/colburn-outdoor-logo-light.png" alt="" loading="eager" />
       </div>
       <div className="pointer-events-none absolute bottom-[18%] right-[9%] hidden h-28 w-px rotate-12 bg-[#d2a75f]/35 lg:block" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(0deg,#fbf5e9_0%,rgba(251,245,233,0)_100%)]" />
@@ -428,6 +479,7 @@ function Services() {
 
   return (
     <section id="services" className="section-depth section-depth-services scroll-mt-24 bg-[#fbf5e9] py-20 sm:py-24 lg:py-28">
+      <SectionArtwork layout="leaf" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
           <div data-reveal>
@@ -467,7 +519,7 @@ function Services() {
                   <p className="mt-4 text-base leading-7 text-[#4d4439]">{service.text}</p>
                 </div>
                 <div className="relative z-10 aspect-[4/3] w-full overflow-hidden border-t border-[#d7c2a0]">
-                  <img className="h-full w-full object-cover transition duration-700 group-hover:scale-105" src={service.image} alt="" loading="lazy" decoding="async" />
+                  <FadeImage className="h-full w-full object-cover transition duration-700 group-hover:scale-105" src={service.image} alt="" />
                   <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#143420]/75 to-transparent" />
                 </div>
               </button>
@@ -692,6 +744,7 @@ function EstimateSection() {
 
   return (
     <section id="estimate" className="section-depth section-depth-estimate scroll-mt-24 bg-[#fffaf0] py-20 sm:py-24 lg:py-28">
+      <SectionArtwork layout="estimate" />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8">
         <div data-reveal>
           <p className="text-sm font-black uppercase tracking-normal text-[#245b2f]">Instant Estimate</p>
@@ -779,6 +832,7 @@ function WorkTypes() {
 
   return (
     <section id="work-types" className="section-depth section-depth-work scroll-mt-24 bg-[#fbf5e9] py-20 sm:py-24 lg:py-28">
+      <SectionArtwork layout="work" />
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:px-8">
         <div data-reveal>
           <p className="text-sm font-black uppercase tracking-normal text-[#245b2f]">Work Types</p>
@@ -812,7 +866,7 @@ function WorkTypes() {
           </div>
         </div>
         <div className="motion-card relative overflow-hidden rounded-tr-[72px] border border-[#d7c2a0] bg-[#e7d5ba] shadow-[0_24px_70px_rgba(49,35,18,0.18)]" data-reveal onPointerMove={handlePointerMotion} onPointerLeave={resetPointerMotion}>
-          <img key={activeType.title} className="media-swap h-[440px] w-full object-cover sm:h-[560px]" src={activeType.image} alt={`${activeType.title} outdoor maintenance`} loading="lazy" decoding="async" />
+          <FadeImage key={activeType.title} className="media-swap h-[440px] w-full object-cover sm:h-[560px]" src={activeType.image} alt={`${activeType.title} outdoor maintenance`} />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#112c1b]/94 via-[#112c1b]/70 to-transparent p-6 pt-24 text-white sm:p-8">
             <h3 className="font-serif text-3xl font-bold text-[#fff7ea]">{activeType.title}</h3>
             <p className="mt-3 max-w-xl text-xl font-bold leading-8">{activeType.text}</p>
@@ -826,10 +880,11 @@ function WorkTypes() {
 function CallFirst() {
   return (
     <section id="contact" className="dark-section-graphics scroll-mt-24 bg-[#143420] text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.5fr_1.55fr_0.74fr] lg:items-center lg:px-8">
+      <SectionArtwork tone="dark" layout="contact" />
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.62fr_1.38fr_0.74fr] lg:items-center lg:px-8">
         <div className="flex items-center gap-5" data-reveal>
-          <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border border-[#d2a75f] bg-[#d2a75f]/14 p-3 sm:h-32 sm:w-32">
-            <img className="h-full w-full object-contain" src="/images/colburn-outdoor-logo-light.png" alt="" loading="lazy" decoding="async" />
+          <div className="logo-tile h-36 w-64 shrink-0 overflow-hidden rounded-md border border-[#d2a75f]/65 bg-[#fbf5e9] shadow-[0_22px_52px_rgba(0,0,0,0.22)] sm:h-44 sm:w-80">
+            <FadeImage className="logo-tile-image" src="/images/colburn-outdoor-logo.png" alt="" />
           </div>
           <div className="h-24 w-px bg-white/[0.22]" />
         </div>
