@@ -1,4 +1,4 @@
-import { handleApi } from '../worker/index.js';
+import { applySeoResponse, handleApi } from '../worker/index.js';
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
@@ -14,15 +14,5 @@ export async function onRequest(context) {
 
   const response = await context.next();
 
-  if (url.pathname.startsWith('/dashboard')) {
-    const headers = new Headers(response.headers);
-    headers.set('X-Robots-Tag', 'noindex, nofollow');
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers,
-    });
-  }
-
-  return response;
+  return applySeoResponse(response, url, { noIndex: url.pathname.startsWith('/dashboard') });
 }

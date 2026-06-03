@@ -27,6 +27,7 @@ import { calculateEstimate, pricingConfig } from './data/pricing.js';
 
 const phoneDisplay = '(704) 430-5221';
 const phoneHref = 'tel:+17044305221';
+const siteUrl = 'https://colburnoutdoor.com';
 const dashboardPasswordKey = 'colburn-dashboard-password';
 const reviewMessage =
   'Thanks for choosing Colburn Outdoor Maintenance. If you were happy with the work, would you mind leaving us a quick Google review?';
@@ -45,7 +46,28 @@ const navItems = [
   { label: 'Contact', href: '#contact' },
 ];
 
-const publicSectionIds = ['top', 'services', 'estimate', 'work-types', 'contact'];
+const publicSectionIds = ['top', 'services', 'estimate', 'work-types', 'faq', 'contact'];
+
+const seoPages = {
+  home: {
+    title: 'Colburn Outdoor Maintenance | Lawn Care, Cleanup & Property Upkeep',
+    description:
+      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep for homes, rentals, and small business grounds.',
+    canonical: `${siteUrl}/`,
+  },
+  privacy: {
+    title: 'Privacy Policy | Colburn Outdoor Maintenance',
+    description:
+      'Privacy Policy for Colburn Outdoor Maintenance, including quote request information, lead storage, email notifications, and optional SMS automation.',
+    canonical: `${siteUrl}/privacy`,
+  },
+  terms: {
+    title: 'Terms of Use | Colburn Outdoor Maintenance',
+    description:
+      'Terms of Use for Colburn Outdoor Maintenance, including estimate ranges, scheduling, website use, and dashboard message handling.',
+    canonical: `${siteUrl}/terms`,
+  },
+};
 
 function smsHref(phone, body = '') {
   return `sms:${phone}${body ? `?&body=${encodeURIComponent(body)}` : ''}`;
@@ -108,6 +130,29 @@ const workTypes = [
     text: 'Consistent visits so the property stays under control.',
     icon: RotateCcw,
     image: '/images/trimming-hedges.png',
+  },
+];
+
+const faqs = [
+  {
+    question: 'What services does Colburn Outdoor Maintenance provide?',
+    answer: 'Lawn care, trimming, cleanup, and practical outdoor property upkeep for homes, rentals, and small business grounds.',
+  },
+  {
+    question: 'Do you handle one-time yard cleanup?',
+    answer: 'Yes. One-time cleanup can help with leaves, branches, debris, overgrowth, and outdoor areas that need a reset.',
+  },
+  {
+    question: 'Can you help with rentals and small business grounds?',
+    answer: 'Yes. Colburn Outdoor Maintenance works with homes, rental properties, and small business grounds that need dependable upkeep.',
+  },
+  {
+    question: 'How does the estimate calculator work?',
+    answer: 'The calculator gives a starting range based on service type, property size, condition, timeline, and add-ons. Final pricing depends on the actual job scope.',
+  },
+  {
+    question: 'Can I book online?',
+    answer: 'There is no automatic online booking. Call or submit the quote form to talk through the job and get on the schedule.',
   },
 ];
 
@@ -341,6 +386,40 @@ function useNoIndex(enabled) {
   }, [enabled]);
 }
 
+function upsertMeta(selector, createAttrs, content) {
+  let element = document.head.querySelector(selector);
+  if (!element) {
+    element = document.createElement('meta');
+    Object.entries(createAttrs).forEach(([key, value]) => element.setAttribute(key, value));
+    document.head.appendChild(element);
+  }
+  element.setAttribute('content', content);
+}
+
+function useDocumentMetadata(metadata, enabled = true) {
+  useEffect(() => {
+    if (!enabled || !metadata) return undefined;
+
+    document.title = metadata.title;
+    upsertMeta('meta[name="description"]', { name: 'description' }, metadata.description);
+    upsertMeta('meta[property="og:title"]', { property: 'og:title' }, metadata.title);
+    upsertMeta('meta[property="og:description"]', { property: 'og:description' }, metadata.description);
+    upsertMeta('meta[property="og:url"]', { property: 'og:url' }, metadata.canonical);
+    upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title' }, metadata.title);
+    upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description' }, metadata.description);
+
+    let canonical = document.head.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', metadata.canonical);
+
+    return undefined;
+  }, [enabled, metadata]);
+}
+
 function CallLink({ className = '', children = `Call ${phoneDisplay}`, variant = 'primary', source = 'call_button' }) {
   const variants = {
     primary:
@@ -519,7 +598,7 @@ function Services() {
                   <p className="mt-4 text-base leading-7 text-[#4d4439]">{service.text}</p>
                 </div>
                 <div className="relative z-10 aspect-[4/3] w-full overflow-hidden border-t border-[#d7c2a0]">
-                  <FadeImage className="h-full w-full object-cover transition duration-700 group-hover:scale-105" src={service.image} alt="" />
+                  <FadeImage className="h-full w-full object-cover transition duration-700 group-hover:scale-105" src={service.image} alt={`${service.title} service from Colburn Outdoor Maintenance`} />
                   <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#143420]/75 to-transparent" />
                 </div>
               </button>
@@ -871,6 +950,36 @@ function WorkTypes() {
             <h3 className="font-serif text-3xl font-bold text-[#fff7ea]">{activeType.title}</h3>
             <p className="mt-3 max-w-xl text-xl font-bold leading-8">{activeType.text}</p>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FaqSection() {
+  return (
+    <section id="faq" className="section-depth section-depth-faq scroll-mt-24 bg-[#fffaf0] py-20 sm:py-24 lg:py-28">
+      <SectionArtwork layout="estimate" />
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:px-8">
+        <div data-reveal>
+          <p className="text-sm font-black uppercase tracking-normal text-[#245b2f]">Common Questions</p>
+          <h2 className="mt-4 max-w-2xl font-serif text-[40px] font-bold leading-[1.04] text-[#102418] sm:text-[58px]">
+            Straight answers before you call.
+          </h2>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-[#3f382f]">
+            A quick call is still the best way to talk through the property, but these are the questions people usually ask first.
+          </p>
+        </div>
+        <div className="grid gap-3" data-reveal>
+          {faqs.map((item, index) => (
+            <details className="faq-disclosure group rounded-md border border-[#d7c2a0] bg-[#fbf5e9] p-5 shadow-[0_14px_34px_rgba(49,35,18,0.07)] transition duration-300 hover:border-[#b98b45]" key={item.question} open={index === 0}>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-[#143420]">
+                <span>{item.question}</span>
+                <ChevronDown className="h-5 w-5 shrink-0 text-[#245b2f] transition duration-300 group-open:rotate-180" />
+              </summary>
+              <p className="mt-4 text-base leading-7 text-[#4d4439]">{item.answer}</p>
+            </details>
+          ))}
         </div>
       </div>
     </section>
@@ -1261,8 +1370,10 @@ export default function App() {
   const path = window.location.pathname;
   const isDashboard = path.startsWith('/dashboard');
   const legalType = path.startsWith('/privacy') ? 'privacy' : path.startsWith('/terms') ? 'terms' : '';
+  const metadata = legalType ? seoPages[legalType] : seoPages.home;
   useRevealMotion(!isDashboard && !legalType);
   const pageMotion = usePageMotion(!isDashboard && !legalType);
+  useDocumentMetadata(metadata, !isDashboard);
 
   if (isDashboard) return <Dashboard />;
   if (legalType) return <LegalPage type={legalType} />;
@@ -1275,6 +1386,7 @@ export default function App() {
         <Services />
         <EstimateSection />
         <WorkTypes />
+        <FaqSection />
         <CallFirst />
       </main>
       <Footer />

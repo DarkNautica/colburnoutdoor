@@ -26,6 +26,73 @@ function jsonResponse(payload, status = 200) {
   });
 }
 
+const seoRoutes = {
+  '/': {
+    title: 'Colburn Outdoor Maintenance | Lawn Care, Cleanup & Property Upkeep',
+    description:
+      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep for homes, rentals, and small business grounds.',
+    canonical: 'https://colburnoutdoor.com/',
+  },
+  '/privacy': {
+    title: 'Privacy Policy | Colburn Outdoor Maintenance',
+    description:
+      'Privacy Policy for Colburn Outdoor Maintenance, including quote request information, lead storage, email notifications, and optional SMS automation.',
+    canonical: 'https://colburnoutdoor.com/privacy',
+  },
+  '/terms': {
+    title: 'Terms of Use | Colburn Outdoor Maintenance',
+    description:
+      'Terms of Use for Colburn Outdoor Maintenance, including estimate ranges, scheduling, website use, and dashboard message handling.',
+    canonical: 'https://colburnoutdoor.com/terms',
+  },
+};
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function routeSeo(pathname) {
+  const normalized = pathname.replace(/\/$/, '') || '/';
+  return seoRoutes[normalized] || seoRoutes['/'];
+}
+
+function replaceMetaTag(html, selector, replacement) {
+  const pattern = new RegExp(`<meta\\s+[^>]*${selector}[^>]*>`, 'i');
+  return pattern.test(html) ? html.replace(pattern, replacement) : html.replace('</head>', `    ${replacement}\n  </head>`);
+}
+
+export async function applySeoResponse(response, url, { noIndex = false } = {}) {
+  const headers = new Headers(response.headers);
+  if (noIndex) headers.set('X-Robots-Tag', 'noindex, nofollow');
+
+  const contentType = headers.get('Content-Type') || '';
+  if (!contentType.includes('text/html')) {
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  }
+
+  const metadata = routeSeo(url.pathname);
+  const title = escapeHtml(metadata.title);
+  const description = escapeHtml(metadata.description);
+  const canonical = escapeHtml(metadata.canonical);
+  let html = await response.text();
+
+  html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+  html = replaceMetaTag(html, 'name="description"', `<meta name="description" content="${description}" />`);
+  html = replaceMetaTag(html, 'property="og:title"', `<meta property="og:title" content="${title}" />`);
+  html = replaceMetaTag(html, 'property="og:description"', `<meta property="og:description" content="${description}" />`);
+  html = replaceMetaTag(html, 'property="og:url"', `<meta property="og:url" content="${canonical}" />`);
+  html = replaceMetaTag(html, 'name="twitter:title"', `<meta name="twitter:title" content="${title}" />`);
+  html = replaceMetaTag(html, 'name="twitter:description"', `<meta name="twitter:description" content="${description}" />`);
+  html = html.replace(/<link id="canonical-url" rel="canonical" href="[^"]*" \/>/i, `<link id="canonical-url" rel="canonical" href="${canonical}" />`);
+
+  headers.set('Content-Type', 'text/html; charset=UTF-8');
+  return new Response(html, { status: response.status, statusText: response.statusText, headers });
+}
+
 function parseJson(value, fallback) {
   try {
     return JSON.parse(value);
@@ -798,13 +865,7 @@ export default {
       }
 
       const response = await env.ASSETS.fetch(request);
-      if (url.pathname.startsWith('/dashboard')) {
-        const headers = new Headers(response.headers);
-        headers.set('X-Robots-Tag', 'noindex, nofollow');
-        return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
-      }
-
-      return response;
+      return applySeoResponse(response, url, { noIndex: url.pathname.startsWith('/dashboard') });
     } catch (error) {
       return jsonResponse({ error: error.message || 'Server error.' }, 500);
     }

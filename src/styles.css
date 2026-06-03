@@ -219,6 +219,15 @@ img {
   transform: translate3d(0, var(--ambient-shift-mid), 0) rotate(8deg);
 }
 
+.section-depth-faq::after {
+  right: max(18px, calc((100vw - 1280px) / 2));
+  bottom: 70px;
+  background:
+    linear-gradient(135deg, rgba(251, 245, 233, 0.72), rgba(231, 213, 186, 0.28)),
+    url("/images/trimming-hedges.png") center / cover;
+  transform: translate3d(0, var(--ambient-shift-mid), 0) rotate(-10deg);
+}
+
 .dark-section-graphics::before {
   inset: 0;
   background:
@@ -334,6 +343,16 @@ img {
 
 .section-artwork-contact .art-grass {
   opacity: 0.58;
+}
+
+.faq-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-disclosure[open] {
+  border-color: rgba(36, 91, 47, 0.72);
+  background: #fbf5e9;
+  box-shadow: 0 20px 46px rgba(49, 35, 18, 0.11);
 }
 
 .media-swap {
