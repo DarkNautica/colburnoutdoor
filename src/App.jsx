@@ -7,6 +7,7 @@ import {
   Check,
   CheckCircle2,
   ClipboardList,
+  Copy,
   Home,
   Leaf,
   Lock,
@@ -27,6 +28,8 @@ import { calculateEstimate, pricingConfig } from './data/pricing.js';
 const phoneDisplay = '(704) 430-5221';
 const phoneHref = 'tel:+17044305221';
 const dashboardPasswordKey = 'colburn-dashboard-password';
+const reviewMessage =
+  'Thanks for choosing Colburn Outdoor Maintenance. If you were happy with the work, would you mind leaving us a quick Google review?';
 
 const statusOptions = ['new', 'contacted', 'quoted', 'booked', 'completed', 'lost'];
 const statusSelectOptions = statusOptions.map((option) => ({
@@ -43,6 +46,10 @@ const navItems = [
 ];
 
 const publicSectionIds = ['top', 'services', 'estimate', 'work-types', 'contact'];
+
+function smsHref(phone, body = '') {
+  return `sms:${phone}${body ? `?&body=${encodeURIComponent(body)}` : ''}`;
+}
 
 const services = [
   {
@@ -853,6 +860,10 @@ function Footer() {
           <h2 className="mt-5 font-serif text-3xl font-bold text-white">Colburn Outdoor Maintenance</h2>
           <p className="mt-5 max-w-md text-base leading-7 text-[#d9c7aa]">Local outdoor maintenance for homes, rental properties, and small business grounds.</p>
           <a className="mt-4 inline-block text-sm font-bold text-[#d2a75f]" href="/dashboard">Owner dashboard</a>
+          <div className="mt-4 flex flex-wrap gap-4 text-sm font-bold text-[#d9c7aa]">
+            <a className="transition hover:text-[#d2a75f]" href="/privacy">Privacy Policy</a>
+            <a className="transition hover:text-[#d2a75f]" href="/terms">Terms</a>
+          </div>
         </div>
         <div>
           <h2 className="text-sm font-black uppercase tracking-normal text-[#d2a75f]">Contact</h2>
@@ -883,6 +894,96 @@ function MobileCallButton() {
       <Phone className="h-5 w-5" strokeWidth={2.5} />
       <span>Call {phoneDisplay}</span>
     </a>
+  );
+}
+
+function LegalPage({ type }) {
+  const isPrivacy = type === 'privacy';
+  const title = isPrivacy ? 'Privacy Policy' : 'Terms of Use';
+  const updated = 'June 3, 2026';
+  const sections = isPrivacy
+    ? [
+        {
+          title: 'Information We Collect',
+          body:
+            'When you submit a quote request, we collect the contact details and job information you provide, including name, phone number, optional email, service needs, estimate selections, notes, and basic source information.',
+        },
+        {
+          title: 'How We Use Information',
+          body:
+            'We use submitted information to respond to quote requests, schedule outdoor maintenance work, maintain lead records, and improve the business website. Owner dashboard access is password protected.',
+        },
+        {
+          title: 'Email and SMS',
+          body:
+            'Phase 1 uses email notifications for new lead alerts. Manual call and text links are available in the dashboard. Automated SMS is disabled by default and may be enabled later only after Twilio/A2P verification is complete.',
+        },
+        {
+          title: 'Service Providers',
+          body:
+            'The site is hosted on Cloudflare Pages with Cloudflare D1 lead storage. Email notifications may be sent through Resend or configured SMTP. We do not sell submitted lead information.',
+        },
+        {
+          title: 'Contact',
+          body: `Questions about this policy can be handled by calling Colburn Outdoor Maintenance at ${phoneDisplay}.`,
+        },
+      ]
+    : [
+        {
+          title: 'Website Use',
+          body:
+            'This website provides general information, a starting estimate calculator, and a quote request form for Colburn Outdoor Maintenance. Use of the website does not create a service agreement by itself.',
+        },
+        {
+          title: 'Estimates',
+          body:
+            'Online estimate ranges are starting points only. Final pricing depends on photos, property access, terrain, current property condition, and the agreed job scope.',
+        },
+        {
+          title: 'Scheduling',
+          body:
+            'Work is scheduled by direct communication. The site does not provide automatic booking or guaranteed appointment times.',
+        },
+        {
+          title: 'Dashboard and Messages',
+          body:
+            'The owner dashboard is for internal lead management. Call, text, follow-up, and review request actions are manual unless optional SMS automation is enabled later after required verification.',
+        },
+        {
+          title: 'Contact',
+          body: `For questions about these terms, call Colburn Outdoor Maintenance at ${phoneDisplay}.`,
+        },
+      ];
+
+  return (
+    <main className="min-h-screen bg-[#fbf5e9] text-[#1e241f]">
+      <header className="border-b border-[#d7c2a0] bg-[#fbf5e9]">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+          <a href="/" aria-label="Colburn Outdoor Maintenance home">
+            <BrandLockup compact />
+          </a>
+          <a className="rounded-md bg-[#245b2f] px-4 py-2 font-bold text-white" href={phoneHref}>
+            Call {phoneDisplay}
+          </a>
+        </div>
+      </header>
+      <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
+        <p className="text-sm font-black uppercase text-[#245b2f]">Colburn Outdoor Maintenance</p>
+        <h1 className="mt-3 font-serif text-5xl font-bold text-[#102418]">{title}</h1>
+        <p className="mt-3 text-sm font-bold text-[#6f6253]">Last updated: {updated}</p>
+        <div className="mt-10 grid gap-5">
+          {sections.map((section) => (
+            <section className="rounded-md border border-[#d7c2a0] bg-white p-6 shadow-sm" key={section.title}>
+              <h2 className="font-serif text-2xl font-bold text-[#143420]">{section.title}</h2>
+              <p className="mt-3 text-base leading-7 text-[#4d4439]">{section.body}</p>
+            </section>
+          ))}
+        </div>
+        <a className="mt-8 inline-flex items-center gap-2 rounded-md border border-[#d7c2a0] bg-white px-4 py-3 font-bold text-[#143420]" href="/">
+          <ArrowRight className="h-4 w-4 rotate-180" /> Back to site
+        </a>
+      </section>
+    </main>
   );
 }
 
@@ -936,6 +1037,11 @@ function Dashboard() {
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
+  const [notice, setNotice] = useState('');
+
+  const followUpMessage = selectedLead
+    ? `Hi ${selectedLead.name}, this is Colburn Outdoor Maintenance. Thanks for reaching out about ${labelFrom('services', selectedLead.serviceType).toLowerCase()}. We can talk through the job and scheduling when you have a minute.`
+    : '';
 
   async function loadLeads(activePassword = password) {
     const params = new URLSearchParams({ status, search });
@@ -963,15 +1069,15 @@ function Dashboard() {
     await loadLeads();
   }
 
-  async function sendReview() {
-    if (!selectedLead) return;
-    const result = await apiRequest(`/api/leads/${selectedLead.id}/review-request`, {
-      method: 'POST',
-      headers: { 'x-dashboard-password': password },
-      body: JSON.stringify({}),
-    });
-    setSelectedLead(result.lead);
-    await loadLeads();
+  async function copyDashboardMessage(text, label) {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice(`${label} copied.`);
+    } catch {
+      setNotice(`${label}: ${text}`);
+    }
+    window.setTimeout(() => setNotice(''), 3200);
   }
 
   useEffect(() => {
@@ -1033,7 +1139,7 @@ function Dashboard() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <a className="rounded-md bg-[#245b2f] px-4 py-2 font-bold text-white" href={`tel:${selectedLead.phone}`}>Call</a>
-                    <a className="rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" href={`sms:${selectedLead.phone}`}>Text</a>
+                    <a className="rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" href={smsHref(selectedLead.phone, followUpMessage)}>Text</a>
                   </div>
                 </div>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -1045,11 +1151,21 @@ function Dashboard() {
                   <Detail label="Condition" value={labelFrom('conditions', selectedLead.condition)} />
                 </div>
                 <p className="mt-5 rounded-md bg-[#fbf5e9] p-4 text-[#3f382f]">{selectedLead.notes || 'No notes provided.'}</p>
+                {notice && (
+                  <p className="mt-4 rounded-md border border-[#b8d2a7] bg-[#eef5e8] p-3 text-sm font-bold text-[#143420]" role="status">
+                    {notice}
+                  </p>
+                )}
                 <div className="mt-6 flex flex-wrap gap-3">
                   <StyledSelect id="lead-status-select" name="leadStatus" value={selectedLead.status} options={statusSelectOptions} onChange={(event) => updateSelected({ status: event.target.value })} compact className="min-w-[132px]" />
+                  <a className="inline-flex items-center gap-2 rounded-md bg-[#245b2f] px-4 py-2 font-bold text-white" href={`tel:${selectedLead.phone}`}><Phone className="h-4 w-4" /> Call lead</a>
+                  <a className="inline-flex items-center gap-2 rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" href={smsHref(selectedLead.phone, followUpMessage)}><MessageSquare className="h-4 w-4" /> Text lead</a>
+                  <button className="inline-flex items-center gap-2 rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" type="button" onClick={() => copyDashboardMessage(followUpMessage, 'Follow-up message')}><Copy className="h-4 w-4" /> Copy follow-up</button>
+                  <button className="inline-flex items-center gap-2 rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" type="button" onClick={() => copyDashboardMessage(reviewMessage, 'Review request')}><Copy className="h-4 w-4" /> Copy review request</button>
                   <button className="rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" type="button" onClick={() => updateSelected({ markContacted: true, status: 'contacted' })}>Mark contacted</button>
                   <button className="rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" type="button" onClick={() => updateSelected({ status: 'booked' })}>Mark booked</button>
-                  <button className="rounded-md bg-[#d2a75f] px-4 py-2 font-bold text-[#143420]" type="button" onClick={sendReview}>Send review request</button>
+                  <button className="rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" type="button" onClick={() => updateSelected({ status: 'completed' })}>Mark completed</button>
+                  <button className="rounded-md border border-[#d7c2a0] px-4 py-2 font-bold text-[#143420]" type="button" onClick={() => updateSelected({ status: 'lost' })}>Mark lost</button>
                 </div>
                 <label className="mt-6 grid gap-2">
                   <span className="font-bold text-[#143420]">Internal notes</span>
@@ -1087,11 +1203,14 @@ function Detail({ label, value }) {
 }
 
 export default function App() {
-  const isDashboard = window.location.pathname.startsWith('/dashboard');
-  useRevealMotion(!isDashboard);
-  const pageMotion = usePageMotion(!isDashboard);
+  const path = window.location.pathname;
+  const isDashboard = path.startsWith('/dashboard');
+  const legalType = path.startsWith('/privacy') ? 'privacy' : path.startsWith('/terms') ? 'terms' : '';
+  useRevealMotion(!isDashboard && !legalType);
+  const pageMotion = usePageMotion(!isDashboard && !legalType);
 
   if (isDashboard) return <Dashboard />;
+  if (legalType) return <LegalPage type={legalType} />;
 
   return (
     <>

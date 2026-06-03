@@ -23,6 +23,7 @@ import {
   notifyOwnerNewLead,
   notifyOwnerSmsReply,
   providerStatus,
+  isSmsAutomationEnabled,
   sendCustomerConfirmation,
   sendMissedCallReply,
   sendReviewRequest,
@@ -212,6 +213,14 @@ app.patch('/api/leads/:id', requireDashboardAuth, (req, res) => {
 });
 
 app.post('/api/leads/:id/review-request', requireDashboardAuth, async (req, res) => {
+  if (!isSmsAutomationEnabled()) {
+    return res.json({
+      ok: false,
+      status: 'disabled',
+      message: 'SMS automation is disabled for Phase 1. Use the dashboard copy/text actions for manual review requests.',
+    });
+  }
+
   const lead = getLead(req.params.id);
   if (!lead) return res.status(404).json({ error: 'Lead not found.' });
   if (lead.reviewRequestedAt && !req.body.force) {
@@ -230,6 +239,14 @@ app.post('/api/leads/:id/review-request', requireDashboardAuth, async (req, res)
 });
 
 app.post('/api/webhooks/missed-call', async (req, res) => {
+  if (!isSmsAutomationEnabled()) {
+    return res.json({
+      ok: false,
+      status: 'disabled',
+      message: 'SMS automation is disabled for Phase 1. Enable TWILIO_ENABLED=true after Twilio/A2P verification.',
+    });
+  }
+
   const phone = cleanString(req.body.From || req.body.from || req.body.caller || req.body.phone);
   if (!phone) return res.status(400).json({ error: 'Caller phone is required.' });
 
@@ -281,6 +298,14 @@ app.post('/api/webhooks/missed-call', async (req, res) => {
 });
 
 app.post('/api/webhooks/sms', async (req, res) => {
+  if (!isSmsAutomationEnabled()) {
+    return res.json({
+      ok: false,
+      status: 'disabled',
+      message: 'SMS automation is disabled for Phase 1. Enable TWILIO_ENABLED=true after Twilio/A2P verification.',
+    });
+  }
+
   const fromPhone = cleanString(req.body.From || req.body.from || req.body.phone);
   const body = cleanString(req.body.Body || req.body.body || req.body.message);
   if (!fromPhone || !body) return res.status(400).json({ error: 'From phone and message body are required.' });

@@ -357,18 +357,91 @@ function requireDashboardAuth(request, env) {
 }
 
 function providerStatus(env) {
+  const twilioEnabled = isTwilioEnabled(env);
+  const twilioConfigured = hasTwilioConfig(env);
   return {
-    emailConfigured: false,
-    smsConfigured: Boolean(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.TWILIO_FROM_NUMBER),
+    emailConfigured: hasEmailConfig(env),
+    emailProvider: env.RESEND_API_KEY ? 'resend' : hasSmtpConfig(env) ? 'smtp' : 'none',
+    smsConfigured: twilioConfigured,
+    smsEnabled: twilioEnabled,
     ownerEmailConfigured: Boolean(env.OWNER_EMAIL),
     ownerPhoneConfigured: Boolean(env.OWNER_PHONE || '7044305221'),
     googleReviewConfigured: Boolean(env.GOOGLE_REVIEW_LINK),
   };
 }
 
+function isTwilioEnabled(env) {
+  return String(env.TWILIO_ENABLED || 'false').toLowerCase() === 'true';
+}
+
+function hasTwilioConfig(env) {
+  return Boolean(isTwilioEnabled(env) && env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.TWILIO_FROM_NUMBER);
+}
+
+function smsDisabledPayload() {
+  return {
+    ok: false,
+    status: 'disabled',
+    message: 'SMS automation is disabled for Phase 1. Enable TWILIO_ENABLED=true only after Twilio/A2P 10DLC verification is complete.',
+  };
+}
+
+function hasSmtpConfig(env) {
+  return Boolean(env.SMTP_HOST && env.SMTP_PORT && env.SMTP_USER && env.SMTP_PASS);
+}
+
+function hasEmailConfig(env) {
+  return Boolean(env.OWNER_EMAIL && (env.RESEND_API_KEY || hasSmtpConfig(env)));
+}
+
+async function sendEmail(env, { to, subject, text }) {
+  if (!to) {
+    return { channel: 'email', status: 'skipped', reason: 'OWNER_EMAIL is not configured' };
+  }
+
+  if (env.RESEND_API_KEY) {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: env.EMAIL_FROM || 'Colburn Outdoor Maintenance <onboarding@resend.dev>',
+        to,
+        subject,
+        text,
+      }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Resend email failed: ${response.status} ${detail}`);
+    }
+
+    const payload = await response.json();
+    return { channel: 'email', provider: 'resend', status: 'sent', providerMessageId: payload.id };
+  }
+
+  if (hasSmtpConfig(env)) {
+    return {
+      channel: 'email',
+      provider: 'smtp',
+      status: 'skipped',
+      reason: 'SMTP variables are present, but Cloudflare Pages Functions require an HTTP email provider. Use RESEND_API_KEY for Phase 1 on Cloudflare.',
+    };
+  }
+
+  return { channel: 'email', status: 'skipped', reason: 'RESEND_API_KEY or SMTP env vars are not configured' };
+}
+
 async function sendSms(env, { to, body }) {
-  if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_AUTH_TOKEN || !env.TWILIO_FROM_NUMBER || !to) {
-    return { channel: 'sms', status: 'skipped', reason: 'Twilio or recipient not configured' };
+  if (!isTwilioEnabled(env)) {
+    return { channel: 'sms', status: 'disabled', reason: smsDisabledPayload().message };
+  }
+
+  if (!hasTwilioConfig(env) || !to) {
+    return { channel: 'sms', status: 'disabled', reason: 'Twilio is enabled but required Twilio env vars or recipient are missing' };
   }
 
   const credentials = btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`);
@@ -406,10 +479,31 @@ function dashboardUrl(env, leadId = '') {
 }
 
 async function notifyOwnerNewLead(env, lead) {
-  return sendSms(env, {
-    to: env.OWNER_PHONE || '7044305221',
-    body: `New Colburn lead: ${lead.name}, ${lead.phone}, ${lead.serviceType}, ${formatEstimate(lead)}. ${dashboardUrl(env, lead.id)}`,
-  });
+  const subject = `New Colburn Outdoor lead: ${lead.name}`;
+  const text = [
+    `New lead from ${lead.source}`,
+    '',
+    `Customer: ${lead.name}`,
+    `Phone: ${lead.phone}`,
+    `Email: ${lead.email || 'Not provided'}`,
+    `Service: ${lead.serviceType}`,
+    `Timeline: ${lead.urgency}`,
+    `Estimate: ${formatEstimate(lead)}`,
+    `Notes: ${lead.notes || 'None'}`,
+    '',
+    `Dashboard: ${dashboardUrl(env, lead.id)}`,
+  ].join('\n');
+
+  const results = [await sendEmail(env, { to: env.OWNER_EMAIL, subject, text })];
+  if (isTwilioEnabled(env)) {
+    results.push(
+      await sendSms(env, {
+        to: env.OWNER_PHONE || '7044305221',
+        body: `New Colburn lead: ${lead.name}, ${lead.phone}, ${lead.serviceType}, ${formatEstimate(lead)}. ${dashboardUrl(env, lead.id)}`,
+      }),
+    );
+  }
+  return results;
 }
 
 async function notifyOwnerSmsReply(env, { lead, fromPhone, body }) {
@@ -473,7 +567,7 @@ async function safelyRecordNotification(env, lead, type, run) {
   }
 }
 
-async function handleApi(request, env, url) {
+export async function handleApi(request, env, url) {
   const path = url.pathname;
 
   if (path === '/api/health' && request.method === 'GET') {
@@ -565,6 +659,7 @@ async function handleApi(request, env, url) {
   const reviewMatch = path.match(/^\/api\/leads\/([^/]+)\/review-request$/);
   if (reviewMatch && request.method === 'POST') {
     if (!requireDashboardAuth(request, env)) return jsonResponse({ error: 'Dashboard password required.' }, 401);
+    if (!hasTwilioConfig(env)) return jsonResponse(smsDisabledPayload());
     const lead = await getLead(env, reviewMatch[1]);
     if (!lead) return jsonResponse({ error: 'Lead not found.' }, 404);
     const body = await parseBody(request);
@@ -585,6 +680,7 @@ async function handleApi(request, env, url) {
   }
 
   if (path === '/api/webhooks/missed-call' && request.method === 'POST') {
+    if (!hasTwilioConfig(env)) return jsonResponse(smsDisabledPayload());
     const body = await parseBody(request);
     const phone = cleanString(body.From || body.from || body.caller || body.phone);
     if (!phone) return jsonResponse({ error: 'Caller phone is required.' }, 400);
@@ -635,6 +731,7 @@ async function handleApi(request, env, url) {
   }
 
   if (path === '/api/webhooks/sms' && request.method === 'POST') {
+    if (!hasTwilioConfig(env)) return jsonResponse(smsDisabledPayload());
     const body = await parseBody(request);
     const fromPhone = cleanString(body.From || body.from || body.phone);
     const messageBody = cleanString(body.Body || body.body || body.message);

@@ -7,18 +7,28 @@ const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN || '';
 const twilioFromNumber = process.env.TWILIO_FROM_NUMBER || '';
 const googleReviewLink = process.env.GOOGLE_REVIEW_LINK || '';
 
+export function isSmsAutomationEnabled() {
+  return String(process.env.TWILIO_ENABLED || 'false').toLowerCase() === 'true';
+}
+
 function hasSmtpConfig() {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
+function hasResendConfig() {
+  return Boolean(process.env.RESEND_API_KEY);
+}
+
 function hasTwilioConfig() {
-  return Boolean(twilioAccountSid && twilioAuthToken && twilioFromNumber);
+  return Boolean(isSmsAutomationEnabled() && twilioAccountSid && twilioAuthToken && twilioFromNumber);
 }
 
 export function providerStatus() {
   return {
-    emailConfigured: hasSmtpConfig() && Boolean(ownerEmail),
+    emailConfigured: (hasResendConfig() || hasSmtpConfig()) && Boolean(ownerEmail),
+    emailProvider: hasResendConfig() ? 'resend' : hasSmtpConfig() ? 'smtp' : 'none',
     smsConfigured: hasTwilioConfig(),
+    smsEnabled: isSmsAutomationEnabled(),
     ownerEmailConfigured: Boolean(ownerEmail),
     ownerPhoneConfigured: Boolean(ownerPhone),
     googleReviewConfigured: Boolean(googleReviewLink),
@@ -26,8 +36,36 @@ export function providerStatus() {
 }
 
 async function sendEmail({ to, subject, text }) {
-  if (!hasSmtpConfig() || !to) {
-    return { channel: 'email', status: 'skipped', reason: 'SMTP or recipient not configured' };
+  if (!to) {
+    return { channel: 'email', status: 'skipped', reason: 'OWNER_EMAIL is not configured' };
+  }
+
+  if (hasResendConfig()) {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM || 'Colburn Outdoor Maintenance <onboarding@resend.dev>',
+        to,
+        subject,
+        text,
+      }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Resend email failed: ${response.status} ${detail}`);
+    }
+
+    const payload = await response.json();
+    return { channel: 'email', provider: 'resend', status: 'sent', providerMessageId: payload.id };
+  }
+
+  if (!hasSmtpConfig()) {
+    return { channel: 'email', status: 'skipped', reason: 'RESEND_API_KEY or SMTP not configured' };
   }
 
   const transporter = nodemailer.createTransport({
@@ -51,8 +89,12 @@ async function sendEmail({ to, subject, text }) {
 }
 
 export async function sendSms({ to, body }) {
+  if (!isSmsAutomationEnabled()) {
+    return { channel: 'sms', status: 'disabled', reason: 'SMS automation is disabled for Phase 1. Set TWILIO_ENABLED=true after Twilio/A2P verification.' };
+  }
+
   if (!hasTwilioConfig() || !to) {
-    return { channel: 'sms', status: 'skipped', reason: 'Twilio or recipient not configured' };
+    return { channel: 'sms', status: 'disabled', reason: 'Twilio is enabled but required Twilio env vars or recipient are missing' };
   }
 
   const credentials = Buffer.from(`${twilioAccountSid}:${twilioAuthToken}`).toString('base64');
@@ -110,14 +152,16 @@ export async function notifyOwnerNewLead(lead) {
 
   const results = [];
   results.push(await sendEmail({ to: ownerEmail, subject, text }));
-  results.push(
-    await sendSms({
-      to: ownerPhone,
-      body: `New Colburn lead: ${lead.name}, ${lead.phone}, ${lead.serviceType}, ${formatEstimate(
-        lead,
-      )}. ${dashboardUrl(lead.id)}`,
-    }),
-  );
+  if (isSmsAutomationEnabled()) {
+    results.push(
+      await sendSms({
+        to: ownerPhone,
+        body: `New Colburn lead: ${lead.name}, ${lead.phone}, ${lead.serviceType}, ${formatEstimate(
+          lead,
+        )}. ${dashboardUrl(lead.id)}`,
+      }),
+    );
+  }
   return results;
 }
 
