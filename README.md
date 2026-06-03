@@ -46,7 +46,7 @@ Important variables:
 - `SMTP_*`: optional email notification settings for local/Node server deployments
 - `TWILIO_ENABLED`: defaults to `false`; do not enable until Twilio/A2P 10DLC verification is complete
 - `TWILIO_*`: optional future SMS automation settings
-- `GOOGLE_REVIEW_LINK`: review request destination
+- `GOOGLE_REVIEW_LINK`: review request destination, currently `https://g.page/r/CVwXiW6gh7xaEAI/review`
 - `SQLITE_PATH`: optional database path
 
 Phase 1 works without Twilio. If email is not configured, the system still stores leads and logs skipped notification attempts gracefully.
@@ -102,6 +102,10 @@ The dashboard supports Phase 1 manual lead handling:
 - Mark booked
 - Mark completed
 - Mark lost
+
+## Google Business Profile
+
+The site links to the live Google review destination at `https://g.page/r/CVwXiW6gh7xaEAI/review`. The public schema includes the Google profile identity URL through `sameAs`, but it intentionally does not include `aggregateRating` or fake review markup. Keep reviews handled through the real Google Business Profile.
 
 ## SMS Automation Notes
 

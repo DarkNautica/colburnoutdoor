@@ -28,9 +28,11 @@ import { calculateEstimate, pricingConfig } from './data/pricing.js';
 const phoneDisplay = '(704) 430-5221';
 const phoneHref = 'tel:+17044305221';
 const siteUrl = 'https://colburnoutdoor.com';
+const googleProfileUrl = 'https://g.page/r/CVwXiW6gh7xaEAI';
+const googleReviewUrl = `${googleProfileUrl}/review`;
 const dashboardPasswordKey = 'colburn-dashboard-password';
 const reviewMessage =
-  'Thanks for choosing Colburn Outdoor Maintenance. If you were happy with the work, would you mind leaving us a quick Google review?';
+  `Thanks for choosing Colburn Outdoor Maintenance. If you were happy with the work, would you mind leaving us a quick Google review? ${googleReviewUrl}`;
 
 const statusOptions = ['new', 'contacted', 'quoted', 'booked', 'completed', 'lost'];
 const statusSelectOptions = statusOptions.map((option) => ({
@@ -1009,6 +1011,9 @@ function CallFirst() {
           <Phone className="h-8 w-8 text-[#d2a75f]" strokeWidth={1.8} />
           <h3 className="mt-5 text-xl font-bold text-white">No online booking.</h3>
           <p className="mt-3 text-base leading-7 text-[#efe1c9]">Every property is different. A quick call helps understand the job and get it scheduled.</p>
+          <a className="mt-5 inline-flex font-bold text-[#d2a75f] transition hover:text-[#fff7ea]" href={googleReviewUrl} target="_blank" rel="noreferrer">
+            Leave a Google review
+          </a>
         </div>
       </div>
     </section>
@@ -1034,6 +1039,7 @@ function Footer() {
           <ul className="mt-5 space-y-3 text-base">
             <li>colburnoutdoor.com</li>
             <li><a className="font-bold text-white transition hover:text-[#d2a75f]" href={phoneHref}>{phoneDisplay}</a></li>
+            <li><a className="font-bold text-white transition hover:text-[#d2a75f]" href={googleReviewUrl} target="_blank" rel="noreferrer">Leave a Google review</a></li>
           </ul>
         </div>
         <div>
