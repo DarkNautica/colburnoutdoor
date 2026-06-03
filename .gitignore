@@ -1,0 +1,12 @@
+/node_modules/
+/dist/
+/data/
+/.wrangler/
+/design/
+/qa/
+.dev.vars
+.env
+*.log
+*.err.log
+*.sqlite
+*.sqlite-*

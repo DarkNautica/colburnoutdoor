@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "colburnoutdoor",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-06-02",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "colburnoutdoor.com/*",
+      "zone_name": "colburnoutdoor.com"
+    },
+    {
+      "pattern": "www.colburnoutdoor.com/*",
+      "zone_name": "colburnoutdoor.com"
+    }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/dashboard", "/dashboard/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "colburnoutdoor-leads",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "PUBLIC_SITE_URL": "https://colburnoutdoor.com",
+    "OWNER_PHONE": "7044305221",
+    "MISSED_CALL_COOLDOWN_HOURS": "24",
+    "SEND_CUSTOMER_CONFIRMATION": "false"
+  }
+}
