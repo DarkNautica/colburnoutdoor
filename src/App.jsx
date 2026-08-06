@@ -62,6 +62,36 @@ const customerTypes = [
   },
 ];
 
+const seasonalSteps = [
+  {
+    number: "01",
+    season: "Spring",
+    title: "Start it clean",
+    text: "Activate the existing system zone by zone, catch winter damage, correct spray patterns, and set the controller for the season.",
+  },
+  {
+    number: "02",
+    season: "Summer",
+    title: "Keep it efficient",
+    text: "Check weak zones, dry spots, leaks, timing, and overspray before a small issue wastes water or damages the lawn.",
+  },
+  {
+    number: "03",
+    season: "Fall",
+    title: "Shut it down right",
+    text: "Prepare the system for freezing weather with winterization scheduled around a practical North Oakland route.",
+  },
+];
+
+const sprinklerSymptoms = [
+  "A zone will not run",
+  "Heads spray the driveway",
+  "Pressure suddenly dropped",
+  "A valve will not shut off",
+  "The controller lost its schedule",
+  "Dry spots keep spreading",
+];
+
 const faqs = [
   {
     question: "Do you install new sprinkler systems?",
@@ -107,17 +137,29 @@ function CallButton({ className = "", label = `Call ${phoneDisplay}` }) {
   );
 }
 
+function BrandLockup({ footer = false }) {
+  return (
+    <span className={`brand-lockup${footer ? " brand-lockup-footer" : ""}`}>
+      <span className="brand-mark"><img src="/images/colburn-outdoor-mark.png" alt="" /></span>
+      <span className="brand-words">
+        <span><strong>Colburn</strong> Outdoor</span>
+        <small>Sprinkler + property service</small>
+      </span>
+    </span>
+  );
+}
+
 export default function App() {
   return (
     <main id="top">
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Colburn Outdoor home">
-          <img src="/images/colburn-outdoor-logo-light.png" alt="Colburn Outdoor Maintenance" />
+          <BrandLockup />
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
           <a href="#sprinklers">Sprinklers</a>
+          <a href="#seasonal">Seasonal service</a>
           <a href="#property">Property maintenance</a>
-          <a href="#who-we-serve">Who we serve</a>
           <a href="#service-area">Service area</a>
         </nav>
         <a className="header-call" href={phoneHref}>
@@ -147,7 +189,7 @@ export default function App() {
         </div>
 
         <div className="hero-media" aria-hidden="true">
-          <img src="/images/hero-yard.png" alt="" />
+          <img src="/images/sprinkler-hero.jpg" alt="" />
           <div className="hero-media-shade" />
           <div className="service-stamp">
             <span className="stamp-ring">Service<br />&amp; repair</span>
@@ -193,6 +235,40 @@ export default function App() {
             </article>
           ))}
         </div>
+
+        <div className="symptom-band" aria-labelledby="symptom-title">
+          <div>
+            <p className="eyebrow"><span /> When to call</p>
+            <h3 id="symptom-title">Something looks wrong.<br />That is enough to start.</h3>
+          </div>
+          <ul>
+            {sprinklerSymptoms.map((symptom) => <li key={symptom}>{symptom}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section className="seasonal-section" id="seasonal" aria-labelledby="seasonal-title">
+        <div className="seasonal-heading">
+          <div>
+            <p className="eyebrow"><span /> Seasonal service cycle</p>
+            <h2 id="seasonal-title">Three touchpoints.<br /><em>Fewer surprises.</em></h2>
+          </div>
+          <div>
+            <p>Existing systems cost less to own when they survive Michigan weather and run correctly all season. Ask about grouping spring, in-season, and fall service on one local route.</p>
+            <CallButton label="Ask about seasonal scheduling" />
+          </div>
+        </div>
+        <div className="seasonal-grid">
+          {seasonalSteps.map((step) => (
+            <article key={step.season}>
+              <span className="seasonal-number">{step.number}</span>
+              <p>{step.season}</p>
+              <h3>{step.title}</h3>
+              <span className="seasonal-line" />
+              <p>{step.text}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="property-section" id="property" aria-labelledby="property-title">
@@ -205,7 +281,7 @@ export default function App() {
         <div className="property-copy">
           <p className="eyebrow"><span /> Secondary service</p>
           <h2 id="property-title">Maintain it.<br /><em>Bring it back.</em></h2>
-          <p className="property-lede">This is not a vague “we do everything” pitch. It is physical lawn maintenance, exterior upkeep, and restoration work for properties that need consistent attention or a serious reset.</p>
+          <p className="property-lede">Physical lawn maintenance, exterior upkeep, and restoration for properties that need consistent attention or a serious reset. Sprinkler service stays first; property work adds practical help without turning into landscape construction.</p>
           <div className="property-list">
             {propertyServices.map((service, index) => (
               <article key={service.title}>
@@ -251,19 +327,30 @@ export default function App() {
       </section>
 
       <section className="service-area-section" id="service-area" aria-labelledby="service-area-title">
-        <div className="map-graphic" aria-hidden="true">
-          <span className="map-ring ring-one" />
-          <span className="map-ring ring-two" />
-          <span className="map-ring ring-three" />
-          <span className="map-pin"><i /> North Oakland</span>
-          <span className="map-road road-one" />
-          <span className="map-road road-two" />
-          <span className="map-road road-three" />
+        <div className="route-board">
+          <div className="route-board-heading">
+            <span>Route 01</span>
+            <strong>North Oakland first</strong>
+          </div>
+          <div className="route-board-core">
+            <p>Primary focus</p>
+            <h3>North Oakland County</h3>
+            <span>Local route density keeps the workday on properties—not behind a windshield.</span>
+          </div>
+          <div className="route-cities" aria-label="Core service cities">
+            <div><span>Core city</span><strong>Troy</strong></div>
+            <div><span>Core city</span><strong>Rochester Hills</strong></div>
+            <div><span>Core city</span><strong>Rochester</strong></div>
+          </div>
+          <div className="route-board-note">
+            <span>Nearby?</span>
+            <p>Roughly 15 miles around the core can fit. Call with the address and we will confirm the route.</p>
+          </div>
         </div>
         <div className="service-area-copy">
           <p className="eyebrow"><span /> Michigan service area</p>
           <h2 id="service-area-title">North Oakland<br /><em>comes first.</em></h2>
-          <p>Our main territory is North Oakland County, with targeted service in Troy, Rochester Hills, Rochester, and roughly 15 miles around those areas. Just outside the radius? Call anyway. Route availability matters more than a rigid border, and nearby work may still fit the schedule efficiently.</p>
+          <p>Our main territory is North Oakland County, with targeted service in Troy, Rochester Hills, Rochester, and roughly 15 miles around those areas. Just outside the usual reach? Call anyway. Route availability matters more than a rigid border.</p>
           <div className="area-facts">
             <div><span>Primary focus</span><strong>North Oakland County</strong></div>
             <div><span>Core cities</span><strong>Troy · Rochester Hills · Rochester</strong></div>
@@ -299,7 +386,7 @@ export default function App() {
       </section>
 
       <footer className="site-footer">
-        <div className="footer-brand"><img src="/images/colburn-outdoor-logo-light.png" alt="Colburn Outdoor Maintenance" /></div>
+        <div className="footer-brand"><BrandLockup footer /></div>
         <div><span>Primary service</span><strong>Sprinkler repair & maintenance</strong></div>
         <div><span>Service area</span><strong>North Oakland County + nearby</strong></div>
         <div><span>Phone</span><a href={phoneHref}>{phoneDisplay}</a></div>

@@ -13,6 +13,8 @@ Sprinkler-first local service website for Colburn Outdoor Maintenance.
 
 The territory language is intentionally flexible. Nearby properties may still be accepted when they fit the route efficiently.
 
+The complete brand, market, conversion, route, and deployment review is in [`COLBURN_BRAND_MARKET_AUDIT.md`](./COLBURN_BRAND_MARKET_AUDIT.md).
+
 ## Run locally
 
 ```bash
@@ -29,7 +31,10 @@ The Cloudflare D1 lead APIs, owner dashboard routes, notification code, and migr
 
 ## Production
 
+If the Cloudflare Pages project is connected to this GitHub repository, merging the approved pull request into `main` should trigger the production deployment. If Git deployment is not connected, deploy from a trusted checkout:
+
 ```bash
+npm install
 npm run build
 npm run cf:deploy
 ```
