@@ -24,6 +24,7 @@ import {
   X,
 } from 'lucide-react';
 import { calculateEstimate, pricingConfig } from './data/pricing.js';
+import SiteHome from './SiteHome.jsx';
 
 const phoneDisplay = '(704) 430-5221';
 const phoneHref = 'tel:+17044305221';
@@ -53,9 +54,9 @@ const publicSectionIds = ['top', 'services', 'estimate', 'work-types', 'faq', 'c
 
 const seoPages = {
   home: {
-    title: 'Colburn Outdoor Maintenance | Charlotte Area Lawn Care & Cleanup',
+    title: 'Sprinkler Repair in North Oakland County | Colburn Outdoor',
     description:
-      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep across the Charlotte area and northwest North Carolina.',
+      'Sprinkler repair, seasonal system service, and practical property care for North Oakland County, Troy, Rochester Hills, Rochester, and nearby Michigan communities.',
     canonical: `${siteUrl}/`,
   },
   privacy: {
@@ -67,7 +68,7 @@ const seoPages = {
   terms: {
     title: 'Terms of Use | Colburn Outdoor Maintenance',
     description:
-      'Terms of Use for Colburn Outdoor Maintenance, including estimate ranges, scheduling, website use, and dashboard message handling.',
+      'Terms of Use for Colburn Outdoor Maintenance, including service information, scheduling, website use, and dashboard message handling.',
     canonical: `${siteUrl}/terms`,
   },
 };
@@ -1109,12 +1110,12 @@ function LegalPage({ type }) {
         {
           title: 'Website Use',
           body:
-            'This website provides general information, a starting estimate calculator, and a quote request form for Colburn Outdoor Maintenance. Use of the website does not create a service agreement by itself.',
+            'This website provides general service information and direct call links for Colburn Outdoor Maintenance. Use of the website or placing a call does not create a service agreement by itself.',
         },
         {
-          title: 'Estimates',
+          title: 'Pricing',
           body:
-            'Online estimate ranges are starting points only. Final pricing depends on photos, property access, terrain, current property condition, and the agreed job scope.',
+            'Pricing is confirmed through direct communication and depends on the sprinkler issue or property-care scope, photos, property access, terrain, and current conditions.',
         },
         {
           title: 'Scheduling',
@@ -1384,26 +1385,12 @@ export default function App() {
   const isDashboard = path.startsWith('/dashboard');
   const legalType = path.startsWith('/privacy') ? 'privacy' : path.startsWith('/terms') ? 'terms' : '';
   const metadata = legalType ? seoPages[legalType] : seoPages.home;
-  useRevealMotion(!isDashboard && !legalType);
-  const pageMotion = usePageMotion(!isDashboard && !legalType);
+  useRevealMotion(false);
+  usePageMotion(false);
   useDocumentMetadata(metadata, !isDashboard);
 
   if (isDashboard) return <Dashboard />;
   if (legalType) return <LegalPage type={legalType} />;
 
-  return (
-    <>
-      <Header activeSection={pageMotion.activeSection} isScrolled={pageMotion.isScrolled} />
-      <main>
-        <Hero />
-        <Services />
-        <EstimateSection />
-        <WorkTypes />
-        <FaqSection />
-        <CallFirst />
-      </main>
-      <Footer />
-      <MobileCallButton />
-    </>
-  );
+  return <SiteHome />;
 }

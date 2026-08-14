@@ -30,9 +30,9 @@ function jsonResponse(payload, status = 200) {
 
 const seoRoutes = {
   '/': {
-    title: 'Colburn Outdoor Maintenance | Charlotte Area Lawn Care & Cleanup',
+    title: 'Sprinkler Repair in North Oakland County | Colburn Outdoor',
     description:
-      'Colburn Outdoor Maintenance provides reliable lawn care, trimming, cleanup, and outdoor property upkeep across the Charlotte area and northwest North Carolina.',
+      'Sprinkler repair, seasonal system service, and practical property care for North Oakland County, Troy, Rochester Hills, Rochester, and nearby Michigan communities.',
     canonical: 'https://colburnoutdoor.com/',
   },
   '/privacy': {
@@ -44,7 +44,7 @@ const seoRoutes = {
   '/terms': {
     title: 'Terms of Use | Colburn Outdoor Maintenance',
     description:
-      'Terms of Use for Colburn Outdoor Maintenance, including estimate ranges, scheduling, website use, and dashboard message handling.',
+      'Terms of Use for Colburn Outdoor Maintenance, including service information, scheduling, website use, and dashboard message handling.',
     canonical: 'https://colburnoutdoor.com/terms',
   },
 };

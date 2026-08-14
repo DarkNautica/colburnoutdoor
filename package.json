@@ -17,6 +17,7 @@
     "cf:deploy": "npm run build && wrangler pages deploy dist --project-name colburnoutdoor --branch main"
   },
   "dependencies": {
+    "animejs": "^4.5.0",
     "concurrently": "^10.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

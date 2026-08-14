@@ -1,10 +1,12 @@
 # Colburn Outdoor Maintenance Lead System
 
-React + Tailwind website with a local-service lead system for Colburn Outdoor Maintenance.
+React + Tailwind website for Colburn Outdoor Maintenance, with an Anime.js-powered public site and an existing local-service lead system retained for owner operations.
 
 ## What It Includes
 
-- Live estimate calculator backed by `src/data/pricing.js`
+- Call-first public site for sprinkler repair, seasonal service, and practical property care
+- Anime.js timelines, scroll choreography, parallax, and interactive motion
+- Existing estimate logic backed by `src/data/pricing.js` for retained lead-system workflows
 - Quote request form that submits to the API
 - Persistent Cloudflare D1 lead storage for production
 - Persistent SQLite lead storage for local Node development
@@ -19,7 +21,7 @@ React + Tailwind website with a local-service lead system for Colburn Outdoor Ma
 
 ## Service Area
 
-The public site and structured data describe the service area as the Charlotte area and northwest North Carolina. Keep this wording accurate and update it if the business narrows or expands where it works.
+The public site and structured data describe the service area as North Oakland County, Michigan, including Troy, Rochester Hills, Rochester, and roughly 15 miles around the core route. Keep this wording accurate and update it if the business narrows or expands where it works.
 
 ## Run Locally
 
