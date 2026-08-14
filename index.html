@@ -20,7 +20,7 @@
       content="Existing sprinkler system repair, seasonal service, and practical property care across North Oakland County and nearby Michigan communities."
     />
     <meta property="og:url" content="https://colburnoutdoor.com/" />
-    <meta property="og:image" content="https://colburnoutdoor.com/og.png" />
+    <meta property="og:image" content="https://colburnoutdoor.com/og.jpg" />
     <meta property="og:image:alt" content="Colburn Outdoor sprinkler repair and property service" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Sprinkler Repair in North Oakland County | Colburn Outdoor" />
@@ -28,10 +28,21 @@
       name="twitter:description"
       content="Existing sprinkler system repair, seasonal service, and practical property care across North Oakland County and nearby Michigan communities."
     />
-    <meta name="twitter:image" content="https://colburnoutdoor.com/og.png" />
-    <title>Sprinkler Repair in North Oakland County | Colburn Outdoor</title>
+    <meta name="twitter:image" content="https://colburnoutdoor.com/og.jpg" />
+    <title>Sprinkler Repair in North Oakland County, MI | Colburn Outdoor</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" as="image" href="/images/sprinkler-hero.png" fetchpriority="high" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/icon-96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link
+      rel="preload"
+      as="image"
+      href="/images/opt/sprinkler-hero-1024.avif"
+      imagesrcset="/images/opt/sprinkler-hero-480.avif 480w, /images/opt/sprinkler-hero-768.avif 768w, /images/opt/sprinkler-hero-1024.avif 1024w, /images/opt/sprinkler-hero-1440.avif 1440w"
+      imagesizes="(max-width: 820px) 100vw, 46vw"
+      type="image/avif"
+      fetchpriority="high"
+    />
     <!-- Fonts are self-hosted via @fontsource-variable, so there is no third-party
          font request to block first paint. -->
     <script>
@@ -44,23 +55,34 @@
         "@context": "https://schema.org",
         "@graph": [
           {
-            "@type": "HomeAndConstructionBusiness",
+            "@type": [
+              "HomeAndConstructionBusiness",
+              "LocalBusiness"
+            ],
             "@id": "https://colburnoutdoor.com/#business",
             "name": "Colburn Outdoor Maintenance",
+            "alternateName": "Colburn Outdoor",
             "url": "https://colburnoutdoor.com/",
             "telephone": "+17044305221",
-            "image": "https://colburnoutdoor.com/images/sprinkler-hero.png",
-            "logo": "https://colburnoutdoor.com/images/colburn-outdoor-logo-light.png",
-            "description": "Sprinkler system repair and maintenance, seasonal service, lawn maintenance, property upkeep, and restoration in North Oakland County and nearby Michigan communities.",
+            "image": "https://colburnoutdoor.com/og.jpg",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://colburnoutdoor.com/images/colburn-outdoor-logo-512.png",
+              "width": 512,
+              "height": 512
+            },
+            "description": "Sprinkler system repair and maintenance, seasonal service, lawn maintenance, property upkeep, and restoration for existing systems in North Oakland County, Michigan. New sprinkler installation is not offered.",
             "priceRange": "$$",
+            "currenciesAccepted": "USD",
+            "address": {
+              "@type": "PostalAddress",
+              "addressRegion": "MI",
+              "addressCountry": "US"
+            },
             "areaServed": [
               {
                 "@type": "AdministrativeArea",
                 "name": "North Oakland County, Michigan"
-              },
-              {
-                "@type": "City",
-                "name": "Troy, Michigan"
               },
               {
                 "@type": "City",
@@ -69,7 +91,44 @@
               {
                 "@type": "City",
                 "name": "Rochester, Michigan"
+              },
+              {
+                "@type": "City",
+                "name": "Troy, Michigan"
+              },
+              {
+                "@type": "City",
+                "name": "Auburn Hills, Michigan"
+              },
+              {
+                "@type": "City",
+                "name": "Lake Orion, Michigan"
+              },
+              {
+                "@type": "City",
+                "name": "Oxford, Michigan"
+              },
+              {
+                "@type": "City",
+                "name": "Clarkston, Michigan"
               }
+            ],
+            "serviceArea": {
+              "@type": "GeoCircle",
+              "geoMidpoint": {
+                "@type": "GeoCoordinates",
+                "latitude": 42.6584,
+                "longitude": -83.1499
+              },
+              "geoRadius": "24140"
+            },
+            "knowsAbout": [
+              "Sprinkler system repair",
+              "Irrigation zone diagnostics",
+              "Sprinkler winterization",
+              "Spring irrigation startup",
+              "Lawn maintenance",
+              "Overgrowth restoration"
             ],
             "sameAs": [
               "https://g.page/r/CVwXiW6gh7xaEAI"
@@ -78,6 +137,7 @@
               "@type": "ContactPoint",
               "telephone": "+17044305221",
               "contactType": "customer service",
+              "areaServed": "US-MI",
               "availableLanguage": "English"
             },
             "hasOfferCatalog": {
@@ -89,7 +149,10 @@
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Sprinkler System Repair",
-                    "description": "Diagnosis and repair for broken heads, leaks, valves, controllers, pressure problems, and zones that will not run."
+                    "description": "Diagnosis and repair for broken heads, leaks, valves, controllers, pressure problems, and zones that will not run.",
+                    "provider": {
+                      "@id": "https://colburnoutdoor.com/#business"
+                    }
                   }
                 },
                 {
@@ -97,7 +160,10 @@
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Sprinkler Performance Service",
-                    "description": "Coverage, pressure, zone, and timing corrections for existing sprinkler systems."
+                    "description": "Coverage, pressure, zone, and timing corrections for existing sprinkler systems.",
+                    "provider": {
+                      "@id": "https://colburnoutdoor.com/#business"
+                    }
                   }
                 },
                 {
@@ -105,7 +171,10 @@
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Seasonal Sprinkler Service",
-                    "description": "Spring startup, in-season tuning, and fall winterization for existing systems."
+                    "description": "Spring startup, in-season tuning, and fall winterization for existing systems.",
+                    "provider": {
+                      "@id": "https://colburnoutdoor.com/#business"
+                    }
                   }
                 },
                 {
@@ -113,7 +182,10 @@
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Property Care",
-                    "description": "Routine lawn maintenance, seasonal cleanup, and overgrowth restoration."
+                    "description": "Routine lawn maintenance, seasonal cleanup, and overgrowth restoration.",
+                    "provider": {
+                      "@id": "https://colburnoutdoor.com/#business"
+                    }
                   }
                 }
               ]
@@ -124,6 +196,7 @@
             "@id": "https://colburnoutdoor.com/#website",
             "url": "https://colburnoutdoor.com/",
             "name": "Colburn Outdoor Maintenance",
+            "inLanguage": "en-US",
             "publisher": {
               "@id": "https://colburnoutdoor.com/#business"
             }
@@ -132,14 +205,68 @@
             "@type": "WebPage",
             "@id": "https://colburnoutdoor.com/#webpage",
             "url": "https://colburnoutdoor.com/",
-            "name": "Sprinkler Repair in North Oakland County | Colburn Outdoor",
+            "name": "Sprinkler Repair in North Oakland County, MI | Colburn Outdoor",
             "description": "Existing sprinkler system repair, seasonal service, and practical property care across North Oakland County and nearby Michigan communities.",
+            "inLanguage": "en-US",
             "isPartOf": {
               "@id": "https://colburnoutdoor.com/#website"
             },
             "about": {
               "@id": "https://colburnoutdoor.com/#business"
+            },
+            "primaryImageOfPage": {
+              "@type": "ImageObject",
+              "url": "https://colburnoutdoor.com/og.jpg"
             }
+          },
+          {
+            "@type": "ItemList",
+            "@id": "https://colburnoutdoor.com/#areas",
+            "name": "Service areas",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Sprinkler repair in Rochester Hills, MI",
+                "url": "https://colburnoutdoor.com/service-area/rochester-hills"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Sprinkler repair in Rochester, MI",
+                "url": "https://colburnoutdoor.com/service-area/rochester"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Sprinkler repair in Troy, MI",
+                "url": "https://colburnoutdoor.com/service-area/troy"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "Sprinkler repair in Auburn Hills, MI",
+                "url": "https://colburnoutdoor.com/service-area/auburn-hills"
+              },
+              {
+                "@type": "ListItem",
+                "position": 5,
+                "name": "Sprinkler repair in Lake Orion, MI",
+                "url": "https://colburnoutdoor.com/service-area/lake-orion"
+              },
+              {
+                "@type": "ListItem",
+                "position": 6,
+                "name": "Sprinkler repair in Oxford, MI",
+                "url": "https://colburnoutdoor.com/service-area/oxford"
+              },
+              {
+                "@type": "ListItem",
+                "position": 7,
+                "name": "Sprinkler repair in Clarkston, MI",
+                "url": "https://colburnoutdoor.com/service-area/clarkston"
+              }
+            ]
           },
           {
             "@type": "FAQPage",

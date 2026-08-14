@@ -13,6 +13,8 @@ import {
   Send,
 } from 'lucide-react';
 import { pricingConfig } from './data/pricing.js';
+import { areaSeo, findServiceArea, serviceAreaHubSeo } from './data/service-areas.js';
+import { ServiceAreaCity, ServiceAreaHub } from './ServiceAreaPage.jsx';
 import SiteHome from './SiteHome.jsx';
 
 const phoneDisplay = '(704) 430-5221';
@@ -33,7 +35,7 @@ const dashboardStatusSelectOptions = [{ value: 'all', label: 'All statuses' }, .
 
 const seoPages = {
   home: {
-    title: 'Sprinkler Repair in North Oakland County | Colburn Outdoor',
+    title: 'Sprinkler Repair in North Oakland County, MI | Colburn Outdoor',
     description:
       'Sprinkler repair, seasonal system service, and practical property care for North Oakland County, Troy, Rochester Hills, Rochester, and nearby Michigan communities.',
     canonical: `${siteUrl}/`,
@@ -295,7 +297,7 @@ function LegalPage({ type }) {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#071612]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4">
           <a className="flex items-center gap-3" href="/" aria-label="Colburn Outdoor Maintenance home">
-            <img className="h-11 w-11 object-contain" src="/images/colburn-outdoor-mark-white.png" alt="" />
+            <img className="h-11 w-11 object-contain" src="/images/opt/colburn-outdoor-mark-white-128.webp" alt="" width="128" height="96" />
             <span className="font-display text-lg font-extrabold uppercase leading-none tracking-tight text-white">
               <span className="text-[#b9ff4b]">Colburn</span> Outdoor
             </span>
@@ -680,14 +682,25 @@ function Dashboard() {
 }
 
 export default function App() {
-  const path = window.location.pathname;
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
   const isDashboard = path.startsWith('/dashboard');
   const legalType = path.startsWith('/privacy') ? 'privacy' : path.startsWith('/terms') ? 'terms' : '';
-  const metadata = legalType ? seoPages[legalType] : seoPages.home;
+
+  const areaSlug = path.startsWith('/service-area/') ? path.slice('/service-area/'.length) : '';
+  const area = areaSlug ? findServiceArea(areaSlug) : null;
+  const isAreaHub = path === '/service-area';
+
+  let metadata = seoPages.home;
+  if (legalType) metadata = seoPages[legalType];
+  else if (area) metadata = areaSeo(area);
+  else if (isAreaHub) metadata = serviceAreaHubSeo;
+
   useDocumentMetadata(metadata, !isDashboard);
 
   if (isDashboard) return <Dashboard />;
   if (legalType) return <LegalPage type={legalType} />;
+  if (area) return <ServiceAreaCity area={area} />;
+  if (isAreaHub) return <ServiceAreaHub />;
 
   return <SiteHome />;
 }

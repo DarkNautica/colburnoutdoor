@@ -1,4 +1,5 @@
 import { calculateEstimate, pricingConfig } from '../src/data/pricing.js';
+import { areaSeo, serviceAreas, serviceAreaHubSeo } from '../src/data/service-areas.js';
 
 const leadStatuses = ['new', 'contacted', 'quoted', 'booked', 'completed', 'lost'];
 const submissionRateLimit = new Map();
@@ -30,7 +31,7 @@ function jsonResponse(payload, status = 200) {
 
 const seoRoutes = {
   '/': {
-    title: 'Sprinkler Repair in North Oakland County | Colburn Outdoor',
+    title: 'Sprinkler Repair in North Oakland County, MI | Colburn Outdoor',
     description:
       'Sprinkler repair, seasonal system service, and practical property care for North Oakland County, Troy, Rochester Hills, Rochester, and nearby Michigan communities.',
     canonical: 'https://colburnoutdoor.com/',
@@ -38,7 +39,7 @@ const seoRoutes = {
   '/privacy': {
     title: 'Privacy Policy | Colburn Outdoor Maintenance',
     description:
-      'Privacy Policy for Colburn Outdoor Maintenance, including quote request information, lead storage, email notifications, and optional SMS automation.',
+      'Privacy Policy for Colburn Outdoor Maintenance, including what the call-first website records, how job records are kept, and how owner notifications work.',
     canonical: 'https://colburnoutdoor.com/privacy',
   },
   '/terms': {
@@ -47,6 +48,10 @@ const seoRoutes = {
       'Terms of Use for Colburn Outdoor Maintenance, including service information, scheduling, website use, and dashboard message handling.',
     canonical: 'https://colburnoutdoor.com/terms',
   },
+  '/service-area': serviceAreaHubSeo,
+  // City pages are generated from the shared data so the served <title>,
+  // description, and canonical cannot drift from what the app renders.
+  ...Object.fromEntries(serviceAreas.map((area) => [`/service-area/${area.slug}`, areaSeo(area)])),
 };
 
 function escapeHtml(value) {

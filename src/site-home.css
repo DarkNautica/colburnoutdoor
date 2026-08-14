@@ -98,6 +98,12 @@ section[id] {
   scroll-margin-top: 96px;
 }
 
+/* <picture> must not create a layout box, so every existing `.x img` rule keeps
+   working now that the images are wrapped for AVIF/WebP negotiation. */
+#site-root picture {
+  display: contents;
+}
+
 .skip-link {
   position: absolute;
   top: -100px;
@@ -1893,4 +1899,45 @@ html.motion-failsafe #site-root [data-reveal] {
   .marquee-track {
     animation: none;
   }
+}
+
+/* Internal links to the service-area pages. The city chips in the route panel
+   are links now, so they need hover/focus affordance. */
+.route-cities a {
+  padding: 9px 13px;
+  color: var(--lime);
+  border: 1px solid rgba(185, 255, 75, 0.34);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.route-cities a:hover {
+  background: rgba(185, 255, 75, 0.14);
+  border-color: rgba(185, 255, 75, 0.6);
+}
+
+.route-inline-link {
+  color: var(--lime);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-area-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.footer-area-links a {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.footer-area-links a:hover {
+  color: var(--lime);
 }
