@@ -16,6 +16,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useSiteMotion, useSmoothScroll } from "./motion.jsx";
+import { SprinklerSpray } from "./SprinklerSpray.jsx";
 import "./site-home.css";
 
 const phoneDisplay = "(704) 430-5221";
@@ -282,6 +283,7 @@ export default function SiteHome() {
       <section className="hero" id="top" aria-labelledby="hero-title">
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-copy">
+          <SprinklerSpray />
           <p className="eyebrow hero-kicker">
             <span /> North Oakland County, Michigan
           </p>

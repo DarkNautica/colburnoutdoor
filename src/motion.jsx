@@ -94,6 +94,16 @@ export function useSiteMotion(scope) {
             .from(".service-stamp", { autoAlpha: 0, scale: 0.7, rotate: -14, duration: 0.8 }, 0.7)
             .from(".hero-caption", { autoAlpha: 0, y: 18, duration: 0.5 }, 0.8);
 
+          // Slow idle breathe on the badge so the hero is never fully static.
+          gsap.to(".service-stamp", {
+            rotate: 12,
+            scale: 1.035,
+            duration: 3.2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+          });
+
           /* -------------------------------------------------- scroll-linked */
 
           gsap.to(".site-progress", {
