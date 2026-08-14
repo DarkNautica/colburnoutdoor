@@ -166,16 +166,24 @@ npm start
 
 The production server serves the built React app and the API from the same Express process. The dashboard route sends a `noindex, nofollow` robots header and all lead data APIs require the dashboard password.
 
-## Cloudflare Pages + Functions + D1
+## Cloudflare Worker + D1 (production)
 
-Phase 1 production uses Cloudflare Pages, Pages Functions, and D1:
+`colburnoutdoor.com` and `www.colburnoutdoor.com` are served by the **Worker**, not by the Pages project. The Worker
+holds routes for both hostnames, so a Pages deploy alone will never change what the live domain serves — deploying the
+Worker is what publishes the site.
 
-- React assets: `dist`
-- Pages Functions entry: `functions/[[path]].js`
-- Shared API handler: `worker/index.js`
+- Config: `wrangler.jsonc` (Worker; `main: worker/index.js`, static assets from `dist`)
+- Entry / API handler: `worker/index.js`
+- React assets: `dist`, served through the `ASSETS` binding with SPA fallback
 - Lead database: Cloudflare D1
 - Owner notifications: Resend email first
 - SMS automation: optional, disabled by default
+
+Builds run automatically from the Git integration on this repo: push to `main` and Workers Builds runs
+`npm run build` then `npx wrangler deploy`. `wrangler.jsonc` must stay the Worker config for that command to work.
+
+A legacy Pages project also exists and still answers on `colburnoutdoor.pages.dev`. Its config lives in
+`wrangler.pages.jsonc` and it deploys with `npm run cf:pages:deploy`. It is not what the public domain serves.
 
 ```bash
 npm install
@@ -183,7 +191,7 @@ npm run build
 npm run cf:d1:create
 ```
 
-Copy the returned D1 `database_id` into `wrangler.jsonc`, replacing `REPLACE_WITH_D1_DATABASE_ID`, then apply the schema:
+Copy the returned D1 `database_id` into `wrangler.jsonc` (and `wrangler.pages.jsonc` if you still use Pages), then apply the schema:
 
 ```bash
 npm run cf:d1:migrate:remote
@@ -192,21 +200,21 @@ npm run cf:d1:migrate:remote
 Set required production secrets in Cloudflare:
 
 ```bash
-npx wrangler pages secret put DASHBOARD_PASSWORD --project-name colburnoutdoor
-npx wrangler pages secret put RESEND_API_KEY --project-name colburnoutdoor
-npx wrangler pages secret put OWNER_EMAIL --project-name colburnoutdoor
-npx wrangler pages secret put EMAIL_FROM --project-name colburnoutdoor
+npx wrangler secret put DASHBOARD_PASSWORD
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put OWNER_EMAIL
+npx wrangler secret put EMAIL_FROM
 ```
 
 Optional future SMS secrets after Twilio verification:
 
 ```bash
-npx wrangler pages secret put TWILIO_ENABLED --project-name colburnoutdoor
-npx wrangler pages secret put TWILIO_ACCOUNT_SID --project-name colburnoutdoor
-npx wrangler pages secret put TWILIO_AUTH_TOKEN --project-name colburnoutdoor
-npx wrangler pages secret put TWILIO_FROM_NUMBER --project-name colburnoutdoor
-npx wrangler pages secret put GOOGLE_REVIEW_LINK --project-name colburnoutdoor
-npx wrangler pages secret put MISSED_CALL_REPLY --project-name colburnoutdoor
+npx wrangler secret put TWILIO_ENABLED
+npx wrangler secret put TWILIO_ACCOUNT_SID
+npx wrangler secret put TWILIO_AUTH_TOKEN
+npx wrangler secret put TWILIO_FROM_NUMBER
+npx wrangler secret put GOOGLE_REVIEW_LINK
+npx wrangler secret put MISSED_CALL_REPLY
 ```
 
 Deploy:
@@ -215,4 +223,4 @@ Deploy:
 npm run cf:deploy
 ```
 
-`wrangler.jsonc` is configured for Cloudflare Pages with D1 bindings. The `www` host redirects to the apex domain in `functions/[[path]].js`.
+`wrangler.jsonc` is the Worker config: D1 binding, static assets, and routes for the apex and `www`. The `www` host redirects to the apex in `worker/index.js`.
