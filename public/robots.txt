@@ -3,17 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /dashboard
 
-# Assistant crawlers are allowed — the site is a public local service listing.
-User-agent: GPTBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
 Sitemap: https://colburnoutdoor.com/sitemap.xml

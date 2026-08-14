@@ -37,23 +37,19 @@ ${urls
 </urlset>
 `;
 
+/*
+ * Cloudflare's "Manage AI crawlers / Content Signals" feature PREPENDS its own
+ * managed block to whatever this file contains, and that block currently sets
+ * Disallow for GPTBot, ClaudeBot, Google-Extended and others. Declaring the
+ * opposite here just produces two contradictory groups for the same crawler,
+ * so AI-crawler policy is left to that single Cloudflare setting.
+ *
+ * Googlebot itself is unaffected either way — normal search indexing is allowed.
+ */
 const robots = `User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /dashboard
-
-# Assistant crawlers are allowed — the site is a public local service listing.
-User-agent: GPTBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
 
 Sitemap: ${siteUrl}/sitemap.xml
 `;
