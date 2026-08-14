@@ -5,9 +5,10 @@ React + Tailwind website for Colburn Outdoor Maintenance, with an Anime.js-power
 ## What It Includes
 
 - Call-first public site for sprinkler repair, seasonal service, and practical property care
+- No public quote form: every conversion path on the site is a phone call
+- Click-to-call tracking on every phone link, posted to `/api/track` with the on-page source
 - Anime.js timelines, scroll choreography, parallax, and interactive motion
 - Existing estimate logic backed by `src/data/pricing.js` for retained lead-system workflows
-- Quote request form that submits to the API
 - Persistent Cloudflare D1 lead storage for production
 - Persistent SQLite lead storage for local Node development
 - Private owner dashboard at `/dashboard`
@@ -62,6 +63,10 @@ Phase 1 works without Twilio. If email is not configured, the system still store
 
 Edit `src/data/pricing.js`.
 
+The public site does not show an estimate calculator — pricing is quoted on the phone. This config still backs the
+`/api/leads` estimate fields and the dashboard's service, size, condition, and timeline labels, so it is kept in sync
+with how jobs are actually priced.
+
 The current starting-price logic:
 
 - Lawn maintenance base: 95
@@ -84,8 +89,8 @@ The current starting-price logic:
 
 Public:
 
-- `POST /api/leads`: create a quote-form lead
-- `POST /api/track`: log direct contact/source events
+- `POST /api/leads`: create a lead; retained for future intake, not called by the public site
+- `POST /api/track`: log direct contact/source events, including every click-to-call on the site
 - `POST /api/webhooks/missed-call`: optional future missed-call text-back endpoint; inactive while `TWILIO_ENABLED=false`
 - `POST /api/webhooks/sms`: optional future inbound SMS reply endpoint; inactive while `TWILIO_ENABLED=false`
 

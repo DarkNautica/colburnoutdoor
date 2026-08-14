@@ -1,31 +1,51 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  animate,
-  createAnimatable,
-  createScope,
-  createTimeline,
-  onScroll,
-  stagger,
-} from "animejs";
+import { animate, createAnimatable, createScope, createTimeline, onScroll, stagger } from "animejs";
 
+/*
+ * Reveal animations are driven by IntersectionObserver rather than anime's
+ * onScroll: onScroll reverts an animation once the element leaves its range,
+ * which left whole sections invisible after scrolling past and back.
+ * Each group animates exactly once and then keeps a .is-revealed class so the
+ * final state survives no matter what happens to the inline styles.
+ */
 export function MotionSystem() {
   useEffect(() => {
     const root = document.querySelector("#site-root");
-    if (!root) return;
+    if (!root) return undefined;
 
-    const scope = createScope({
-      root,
-      defaults: { ease: "out(4)" },
-      mediaQueries: {
-        compact: "(max-width: 820px)",
-        reduceMotion: "(prefers-reduced-motion: reduce)",
-      },
-    }).add((self) => {
-      const compact = self?.matches.compact ?? false;
-      const reduceMotion = self?.matches.reduceMotion ?? false;
-      if (reduceMotion) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealAll = () => {
+      root.querySelectorAll("[data-reveal]").forEach((element) => {
+        element.classList.add("is-revealed");
+        element.style.opacity = "";
+        element.style.transform = "";
+        element.style.clipPath = "";
+      });
+    };
+
+    if (reduceMotion) {
+      revealAll();
+      return undefined;
+    }
+
+    root.setAttribute("data-motion-ready", "");
+
+    // Safety net: if setup below throws, the page must not be left with
+    // invisible content. It only fires when setup did not finish, so it never
+    // pre-empts the scroll choreography on a healthy page.
+    let booted = false;
+    const failsafe = window.setTimeout(() => {
+      if (!booted) revealAll();
+    }, 4000);
+
+    const scope = createScope({ root, defaults: { ease: "out(4)" } }).add((self) => {
+      const compact = window.matchMedia("(max-width: 820px)").matches;
+      const observers = [];
+      const cleanup = [];
+
+      /* ---------------------------------------------------------------- hero */
 
       createTimeline({ defaults: { ease: "out(4)" } })
         .add(".hero-kicker", { opacity: [0, 1], y: [18, 0], duration: 520 }, 80)
@@ -36,36 +56,35 @@ export function MotionSystem() {
         )
         .add(".hero-lede", { opacity: [0, 1], y: [24, 0], duration: 620 }, 360)
         .add(".hero-actions", { opacity: [0, 1], y: [20, 0], duration: 600 }, 440)
+        .add(".hero-proof > div", { opacity: [0, 1], y: [16, 0], duration: 520 }, stagger(80, { start: 540 }))
         .add(
-          ".hero-proof > div",
-          { opacity: [0, 1], y: [16, 0], duration: 520 },
-          stagger(80, { start: 540 }),
+          ".hero-media",
+          { opacity: [0, 1], clipPath: ["inset(0 0 0 100%)", "inset(0 0 0 0%)"], duration: 1000 },
+          100,
         )
-        .add(".hero-media", { opacity: [0, 1], clipPath: ["inset(0 0 0 100%)", "inset(0 0 0 0%)"], duration: 1000 }, 100)
         .add(".service-stamp", { opacity: [0, 1], scale: [0.72, 1], rotate: [-12, 8], duration: 780 }, 640)
         .add(".hero-caption", { opacity: [0, 1], y: [18, 0], duration: 520 }, 720);
+
+      /* ------------------------------------------------- scroll-linked motion */
 
       animate(".hero-media img", {
         y: ["-2%", "6%"],
         scale: [1.02, 1.1],
         ease: "linear",
-        autoplay: onScroll({
-          target: ".hero",
-          enter: "top top",
-          leave: "bottom top",
-          sync: true,
-        }),
+        autoplay: onScroll({ target: ".hero", enter: "top top", leave: "bottom top", sync: true }),
       });
 
       animate(".site-progress", {
         scaleX: [0, 1],
         ease: "linear",
-        autoplay: onScroll({
-          target: root,
-          enter: "top top",
-          leave: "bottom bottom",
-          sync: true,
-        }),
+        autoplay: onScroll({ target: root, enter: "top top", leave: "bottom bottom", sync: true }),
+      });
+
+      animate(".property-visual img", {
+        y: ["-5%", "7%"],
+        scale: [1.12, 1.02],
+        ease: "linear",
+        autoplay: onScroll({ target: ".property-section", enter: "top bottom", leave: "bottom top", sync: true }),
       });
 
       animate(".service-stamp", {
@@ -77,134 +96,114 @@ export function MotionSystem() {
         ease: "inOut(2)",
       });
 
+      /* ------------------------------------------------------- reveal groups */
+
+      const play = (targets, params) => {
+        if (!targets.length) return;
+        animate(targets, {
+          ...params,
+          onComplete: () => targets.forEach((target) => target.classList.add("is-revealed")),
+        });
+      };
+
+      const observeOnce = (element, run) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              observer.unobserve(entry.target);
+              run();
+            });
+          },
+          { rootMargin: "0px 0px -12% 0px", threshold: 0.08 },
+        );
+        observer.observe(element);
+        observers.push(observer);
+      };
+
       root.querySelectorAll("[data-motion-group]").forEach((group) => {
         const targets = Array.from(group.querySelectorAll("[data-reveal]"));
         if (!targets.length) return;
 
-        const titles = Array.from(group.querySelectorAll("[data-motion-title]"));
-        const copies = Array.from(group.querySelectorAll("[data-motion-copy]"));
-        const cards = Array.from(group.querySelectorAll("[data-motion-card]"));
+        const titles = targets.filter((target) => target.matches("[data-motion-title]"));
+        const copies = targets.filter((target) => target.matches("[data-motion-copy]"));
+        const cards = targets.filter((target) => target.matches("[data-motion-card]"));
         const basics = targets.filter(
           (target) => !titles.includes(target) && !copies.includes(target) && !cards.includes(target),
         );
 
-        if (basics.length) {
-          animate(basics, {
+        observeOnce(group, () => {
+          play(basics, {
             opacity: [0, 1],
-            y: [compact ? 22 : 34, 0],
-            duration: compact ? 560 : 720,
+            y: [compact ? 20 : 30, 0],
+            duration: compact ? 560 : 700,
             delay: stagger(compact ? 45 : 70),
-            autoplay: onScroll({
-              target: group,
-              enter: "bottom-=10% top",
-              leave: "top+=8% bottom",
-              repeat: false,
-            }),
           });
-        }
 
-        if (titles.length) animate(titles, {
-          opacity: [0, 1],
-          y: [compact ? 42 : 78, 0],
-          clipPath: ["inset(0 0 100% 0)", "inset(0 0 0% 0)"],
-          duration: compact ? 760 : 980,
-          delay: stagger(90),
-          autoplay: onScroll({
-            target: group,
-            enter: "bottom-=14% top",
-            leave: "top+=8% bottom",
-            repeat: false,
-          }),
-        });
+          play(titles, {
+            opacity: [0, 1],
+            y: [compact ? 40 : 72, 0],
+            clipPath: ["inset(0 0 100% 0)", "inset(0 0 0% 0)"],
+            duration: compact ? 760 : 950,
+            delay: stagger(90),
+          });
 
-        if (copies.length) animate(copies, {
-          opacity: [0, 1],
-          x: [compact ? 18 : 46, 0],
-          duration: compact ? 620 : 820,
-          delay: stagger(80),
-          autoplay: onScroll({
-            target: group,
-            enter: "bottom-=14% top",
-            leave: "top+=8% bottom",
-            repeat: false,
-          }),
-        });
+          play(copies, {
+            opacity: [0, 1],
+            x: [compact ? 16 : 42, 0],
+            duration: compact ? 620 : 800,
+            delay: stagger(80),
+          });
 
-        if (cards.length) animate(cards, {
-          opacity: [0, 1],
-          y: [compact ? 34 : 72, 0],
-          rotate: compact ? [0, 0] : [-1.6, 0],
-          scale: [0.96, 1],
-          duration: compact ? 680 : 920,
-          delay: stagger(compact ? 70 : 115),
-          autoplay: onScroll({
-            target: group,
-            enter: "bottom-=10% top",
-            leave: "top+=8% bottom",
-            repeat: false,
-          }),
+          play(cards, {
+            opacity: [0, 1],
+            y: [compact ? 30 : 64, 0],
+            rotate: compact ? [0, 0] : [-1.4, 0],
+            scale: [0.965, 1],
+            duration: compact ? 680 : 900,
+            delay: stagger(compact ? 70 : 110),
+          });
         });
       });
 
-      animate(".seasonal-track", {
-        scaleX: [0, 1],
-        duration: 1200,
-        autoplay: onScroll({
-          target: ".seasonal-section",
-          enter: "bottom-=18% top",
-          leave: "top bottom",
-          repeat: false,
-        }),
-      });
+      const seasonal = root.querySelector(".seasonal-section");
+      if (seasonal) {
+        observeOnce(seasonal, () => {
+          animate(".seasonal-track", { scaleX: [0, 1], duration: 1200 });
+        });
+      }
 
-      animate(".property-visual img", {
-        y: ["-5%", "7%"],
-        scale: [1.12, 1.02],
-        ease: "linear",
-        autoplay: onScroll({
-          target: ".property-section",
-          enter: "top bottom",
-          leave: "bottom top",
-          sync: true,
-        }),
-      });
+      const routePanel = root.querySelector(".route-panel");
+      if (routePanel) {
+        observeOnce(routePanel, () => {
+          animate(".route-cities span", {
+            opacity: [0, 1],
+            scale: [0.55, 1],
+            y: [18, 0],
+            duration: 620,
+            delay: stagger(110),
+          });
+        });
+      }
 
-      animate(".route-cities span", {
-        opacity: [0, 1],
-        scale: [0.55, 1],
-        y: [18, 0],
-        duration: 620,
-        delay: stagger(110),
-        autoplay: onScroll({
-          target: ".route-panel",
-          enter: "bottom-=15% top",
-          leave: "top bottom",
-          repeat: false,
-        }),
-      });
+      const finalCta = root.querySelector(".final-cta");
+      if (finalCta) {
+        observeOnce(finalCta, () => {
+          animate(".cta-orbits i", {
+            opacity: [0, 0.34, 0],
+            scale: [0.35, 1.15],
+            duration: 2400,
+            delay: stagger(620),
+            loop: true,
+            ease: "out(3)",
+          });
+        });
+      }
 
-      animate(".cta-orbits i", {
-        opacity: [0, 0.34, 0],
-        scale: [0.35, 1.15],
-        duration: 2400,
-        delay: stagger(620),
-        loop: true,
-        ease: "out(3)",
-        autoplay: onScroll({
-          target: ".final-cta",
-          enter: "bottom top",
-          leave: "top bottom",
-        }),
-      });
-
-      const cleanup = [];
+      /* ------------------------------------------------------- pointer motion */
 
       root.querySelectorAll(".js-magnetic").forEach((button) => {
-        const buttonMotion = createAnimatable(button, {
-          x: 300,
-          y: 300,
-          ease: "out(4)",
-        });
+        const buttonMotion = createAnimatable(button, { x: 300, y: 300, ease: "out(4)" });
 
         const onPointerMove = (event) => {
           if (event.pointerType && event.pointerType !== "mouse") return;
@@ -213,7 +212,6 @@ export function MotionSystem() {
           const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 14;
           buttonMotion.x(x).y(y);
         };
-
         const onPointerLeave = () => buttonMotion.x(0, 450).y(0, 450);
 
         button.addEventListener("pointermove", onPointerMove);
@@ -226,12 +224,7 @@ export function MotionSystem() {
 
       if (!compact) {
         root.querySelectorAll(".service-card").forEach((card) => {
-          const cardMotion = createAnimatable(card, {
-            rotateX: 420,
-            rotateY: 420,
-            scale: 320,
-            ease: "out(4)",
-          });
+          const cardMotion = createAnimatable(card, { rotateX: 420, rotateY: 420, scale: 320, ease: "out(4)" });
 
           const onPointerMove = (event) => {
             const bounds = card.getBoundingClientRect();
@@ -239,9 +232,7 @@ export function MotionSystem() {
             const y = (event.clientY - bounds.top) / bounds.height - 0.5;
             cardMotion.rotateX(y * -5).rotateY(x * 6).scale(1.012);
           };
-          const onPointerLeave = () => {
-            cardMotion.rotateX(0, 650).rotateY(0, 650).scale(1, 650);
-          };
+          const onPointerLeave = () => cardMotion.rotateX(0, 650).rotateY(0, 650).scale(1, 650);
           const onPointerEnter = () => {
             animate(card.querySelectorAll("li"), {
               y: [8, 0],
@@ -280,6 +271,8 @@ export function MotionSystem() {
         }
       }
 
+      /* ------------------------------------------------------------- FAQ */
+
       const faqItems = Array.from(root.querySelectorAll(".faq-list details"));
       faqItems.forEach((detail) => {
         const onToggle = () => {
@@ -294,10 +287,19 @@ export function MotionSystem() {
         cleanup.push(() => detail.removeEventListener("toggle", onToggle));
       });
 
-      return () => cleanup.forEach((dispose) => dispose());
+      booted = true;
+
+      return () => {
+        observers.forEach((observer) => observer.disconnect());
+        cleanup.forEach((dispose) => dispose());
+      };
     });
 
-    return () => scope.revert();
+    return () => {
+      window.clearTimeout(failsafe);
+      scope.revert();
+      root.removeAttribute("data-motion-ready");
+    };
   }, []);
 
   return null;
