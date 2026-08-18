@@ -7,8 +7,8 @@
  */
 
 export const siteUrl = "https://colburnoutdoor.com";
-export const phoneDisplay = "(704) 430-5221";
-export const phoneE164 = "+17044305221";
+export const phoneDisplay = "(248) 762-1610";
+export const phoneE164 = "+12487621610";
 
 /* Centre of the stated route, used for the areaServed GeoCircle. Rochester
    Hills city centre; the 15-mile radius comes from the business's own copy. */

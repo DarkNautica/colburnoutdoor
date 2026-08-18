@@ -13,12 +13,11 @@ import {
   Send,
 } from 'lucide-react';
 import { pricingConfig } from './data/pricing.js';
-import { areaSeo, findServiceArea, serviceAreaHubSeo } from './data/service-areas.js';
+import { areaSeo, findServiceArea, phoneDisplay, phoneE164, serviceAreaHubSeo } from './data/service-areas.js';
 import { ServiceAreaCity, ServiceAreaHub } from './ServiceAreaPage.jsx';
 import SiteHome from './SiteHome.jsx';
 
-const phoneDisplay = '(704) 430-5221';
-const phoneHref = 'tel:+17044305221';
+const phoneHref = `tel:${phoneE164}`;
 const siteUrl = 'https://colburnoutdoor.com';
 const googleProfileUrl = 'https://g.page/r/CVwXiW6gh7xaEAI';
 const googleReviewUrl = `${googleProfileUrl}/review`;

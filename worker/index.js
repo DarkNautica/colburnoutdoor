@@ -458,7 +458,7 @@ function providerStatus(env) {
     smsConfigured: twilioConfigured,
     smsEnabled: twilioEnabled,
     ownerEmailConfigured: Boolean(env.OWNER_EMAIL),
-    ownerPhoneConfigured: Boolean(env.OWNER_PHONE || '7044305221'),
+    ownerPhoneConfigured: Boolean(env.OWNER_PHONE || '2487621610'),
     googleReviewConfigured: Boolean(env.GOOGLE_REVIEW_LINK),
   };
 }
@@ -591,7 +591,7 @@ async function notifyOwnerNewLead(env, lead) {
   if (isTwilioEnabled(env)) {
     results.push(
       await sendSms(env, {
-        to: env.OWNER_PHONE || '7044305221',
+        to: env.OWNER_PHONE || '2487621610',
         body: `New Colburn lead: ${lead.name}, ${lead.phone}, ${lead.serviceType}, ${formatEstimate(lead)}. ${dashboardUrl(env, lead.id)}`,
       }),
     );
@@ -601,7 +601,7 @@ async function notifyOwnerNewLead(env, lead) {
 
 async function notifyOwnerSmsReply(env, { lead, fromPhone, body }) {
   return sendSms(env, {
-    to: env.OWNER_PHONE || '7044305221',
+    to: env.OWNER_PHONE || '2487621610',
     body: `SMS reply from ${fromPhone}: ${body}${lead?.id ? ` ${dashboardUrl(env, lead.id)}` : ''}`,
   });
 }

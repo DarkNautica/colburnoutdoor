@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-const ownerPhone = process.env.OWNER_PHONE || '7044305221';
+const ownerPhone = process.env.OWNER_PHONE || '2487621610';
 const ownerEmail = process.env.OWNER_EMAIL || '';
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID || '';
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN || '';

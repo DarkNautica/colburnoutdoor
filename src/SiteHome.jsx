@@ -15,13 +15,12 @@ import {
   Sun,
   Wrench,
 } from "lucide-react";
-import { serviceAreas } from "./data/service-areas.js";
+import { phoneDisplay, phoneE164, serviceAreas } from "./data/service-areas.js";
 import { useSiteMotion, useSmoothScroll } from "./motion.jsx";
 import { SprinklerSpray } from "./SprinklerSpray.jsx";
 import "./site-home.css";
 
-const phoneDisplay = "(704) 430-5221";
-const phoneHref = "tel:+17044305221";
+const phoneHref = `tel:${phoneE164}`;
 
 /*
  * Call-first site: every phone link reports to /api/track so the owner dashboard
